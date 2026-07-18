@@ -263,32 +263,16 @@ services:
       - app-network
 
   ui:
-    image: ${REGISTRY:-dograhai}/dograh-ui:latest
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - |
-        URL="${PUBLIC_API_URL:-http://localhost:8000}"
-        echo "Replacing NEXT_PUBLIC_BACKEND_URL with: $URL"
-        find /app -type f \( -name '*.js' -o -name '*.mjs' -o -name '*.html' \) 2>/dev/null | while read f; do
-          if grep -q 'http://localhost:8000' "$f" 2>/dev/null; then
-            sed -i "s|http://localhost:8000|${URL}|g" "$f"
-          fi
-        done
-        echo "URL replacement done, starting server..."
-        PORT=3010 exec node server.js
+    build:
+      context: .
+      dockerfile: ui/Dockerfile
+      args:
+        NEXT_PUBLIC_BACKEND_URL: "${PUBLIC_API_URL:-http://209.50.240.247:8000}"
     environment:
-      # Bind the Next.js standalone server to all interfaces
       HOSTNAME: "0.0.0.0"
-
-      # Server-side URL (SSR, internal Docker network)
       BACKEND_URL: "${BACKEND_URL:-http://api:8000}"
-      PUBLIC_API_URL: "${PUBLIC_API_URL:-http://localhost:8000}"
       NODE_ENV: "oss"
-
-      # Flag to enable/ disable posthog
       ENABLE_TELEMETRY: "${ENABLE_TELEMETRY:-true}"
-
-      # Posthog
       POSTHOG_KEY: "phc_ItizB1dP6yv7ZYobbcqrpxTdbomDA8hJFSEmAMdYvIr"
       POSTHOG_HOST: "https://us.posthog.com"
     ports:
