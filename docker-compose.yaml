@@ -268,13 +268,17 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        URL="${PUBLIC_API_URL:-http://209.50.240.247:8000}"
-        echo "Replacing NEXT_PUBLIC_BACKEND_URL with: $URL"
-        find /app -type f -name '*.js' | xargs grep -l 'http://localhost:8000' 2>/dev/null | wc -l
-        find /app -type f -name '*.js' | xargs grep -l 'http://localhost:8000' 2>/dev/null | xargs -r sed -i "s|http://localhost:8000|${URL}|g"
-        echo "Replacement done. Verifying..."
-        find /app -type f -name '*.js' | xargs grep -l 'http://localhost:8000' 2>/dev/null | wc -l
-        echo "Files with old URL remaining (should be 0). Starting server..."
+        URL="http://209.50.240.247:8000"
+        echo "=== REPLACING NEXT_PUBLIC_BACKEND_URL ==="
+        echo "Target URL: $URL"
+        BEFORE=$(grep -rl 'http://localhost:8000' /app 2>/dev/null | wc -l)
+        echo "Files containing localhost:8000 BEFORE: $BEFORE"
+        grep -rl 'http://localhost:8000' /app 2>/dev/null | xargs -r sed -i "s|http://localhost:8000|${URL}|g"
+        AFTER=$(grep -rl 'http://localhost:8000' /app 2>/dev/null | wc -l)
+        echo "Files containing localhost:8000 AFTER: $AFTER"
+        echo "=== VERIFICATION: grep for new URL ==="
+        grep -rl "$URL" /app/.next 2>/dev/null | head -5
+        echo "=== Starting server ==="
         exec su -s /bin/sh nextjs -c "PORT=3010 exec node server.js"
     environment:
       HOSTNAME: "0.0.0.0"
