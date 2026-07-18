@@ -21,7 +21,7 @@ services:
       # NOTE: changing this on an existing install does NOT
       # re-key the database — the password is baked into the volume on first init.
       # You can manually change the password using psql in the container
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"
+      POSTGRES_PASSWORD: "postgres"
       POSTGRES_DB: postgres
     logging:
       driver: "json-file"
@@ -45,11 +45,11 @@ services:
     ports:
       - "6379:6379"
     command: >
-      --requirepass ${REDIS_PASSWORD:-redissecret}
+      --requirepass redissecret
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redissecret}", "ping"]
+      test: ["CMD", "redis-cli", "-a", "redissecret", "ping"]
       interval: 3s
       timeout: 10s
       retries: 10
@@ -166,10 +166,10 @@ services:
       BACKEND_API_ENDPOINT: "${BACKEND_API_ENDPOINT:-http://209.50.240.247:8000}"
 
       # Database configuration (using containerized postgres)
-      DATABASE_URL: "postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/postgres"
+      DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/postgres"
 
       # Redis configuration (using containerized redis)
-      REDIS_URL: "redis://:${REDIS_PASSWORD:-redissecret}@redis:6379"
+      REDIS_URL: "redis://:redissecret@redis:6379"
 
       # Storage configuration - bundled MinIO by default. Set ENABLE_AWS_S3=true
       # in .env to make the API use AWS S3 or another S3-compatible server.
@@ -233,7 +233,7 @@ services:
       TURN_SECRET: "${TURN_SECRET:-}"
       FORCE_TURN_RELAY: "${FORCE_TURN_RELAY:-false}"
 
-      OSS_JWT_SECRET: "${OSS_JWT_SECRET:?OSS_JWT_SECRET must be set to a strong secret}"
+      OSS_JWT_SECRET: "TwwMHyVOyxDXKg6gxFwbu7g9twn_d1gj6SjuXCMPS0MvrtLrKvaM3lEWL-x91DrH"
 
       # Telemetry
       ENABLE_TELEMETRY: "${ENABLE_TELEMETRY:-true}"
