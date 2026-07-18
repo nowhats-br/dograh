@@ -27,6 +27,7 @@ import type {
 } from "@/client/types.gen";
 import { ConfigFormDialog } from "@/components/telephony/ConfigFormDialog";
 import { PhoneNumberDialog } from "@/components/telephony/PhoneNumberDialog";
+import { WhatsAppSessionDialog } from "@/components/telephony/WhatsAppSessionDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -82,6 +83,7 @@ export default function TelephonyConfigurationDetailPage() {
   const [phoneDeleteTarget, setPhoneDeleteTarget] = useState<PhoneNumberResponse | null>(
     null,
   );
+  const [waSessionDialogOpen, setWaSessionDialogOpen] = useState(false);
 
   const fetchAll = useCallback(async () => {
     if (authLoading || !user || !configId) return;
@@ -282,29 +284,40 @@ export default function TelephonyConfigurationDetailPage() {
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-4">
           <div className="space-y-1">
-            <CardTitle>Phone numbers</CardTitle>
+            <CardTitle>
+              {config.provider === "wacalls" ? "WhatsApp Sessions" : "Phone numbers"}
+            </CardTitle>
             <CardDescription>
-              Numbers used as caller ID for outbound and accepted for inbound matching.
-              SIP URIs and extensions are supported alongside PSTN numbers.{" "}
-              <a
-                href="https://docs.dograh.com/integrations/telephony/inbound"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-0.5 underline"
-              >
-                Inbound docs <ExternalLink className="h-3 w-3" />
-              </a>
+              {config.provider === "wacalls"
+                ? "WhatsApp sessions paired via QR code for this configuration."
+                : "Numbers used as caller ID for outbound and accepted for inbound matching. SIP URIs and extensions are supported alongside PSTN numbers. "}
+              {config.provider !== "wacalls" && (
+                <a
+                  href="https://docs.dograh.com/integrations/telephony/inbound"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-0.5 underline"
+                >
+                  Inbound docs <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
             </CardDescription>
           </div>
-          <Button
-            size="sm"
-            onClick={() => {
-              setPhoneEditTarget(null);
-              setPhoneDialogOpen(true);
-            }}
-          >
-            <Plus className="h-4 w-4 mr-2" /> Add phone number
-          </Button>
+          {config.provider === "wacalls" ? (
+            <Button size="sm" onClick={() => setWaSessionDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" /> Add WhatsApp session
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              onClick={() => {
+                setPhoneEditTarget(null);
+                setPhoneDialogOpen(true);
+              }}
+            >
+              <Plus className="h-4 w-4 mr-2" /> Add phone number
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           {phoneNumbers.length === 0 ? (
@@ -425,6 +438,15 @@ export default function TelephonyConfigurationDetailPage() {
         existing={phoneEditTarget}
         onSaved={fetchAll}
       />
+
+      {config.provider === "wacalls" && (
+        <WhatsAppSessionDialog
+          open={waSessionDialogOpen}
+          onOpenChange={setWaSessionDialogOpen}
+          configId={configId}
+          onSaved={fetchAll}
+        />
+      )}
 
       <AlertDialog
         open={!!phoneDeleteTarget}
