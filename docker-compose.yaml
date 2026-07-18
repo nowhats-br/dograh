@@ -263,15 +263,20 @@ services:
       - app-network
 
   ui:
-    build:
-      context: .
-      dockerfile: ui/Dockerfile
+    image: ${REGISTRY:-dograhai}/dograh-ui:latest
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        sed -i 's|http://localhost:8000|${PUBLIC_API_URL:-http://localhost:8000}|g' .next/static/chunks/*.js .next/static/chunks/*.js.map 2>/dev/null || true
+        find .next -name '*.js' -exec sed -i 's|http://localhost:8000|${PUBLIC_API_URL:-http://localhost:8000}|g' {} + 2>/dev/null || true
+        PORT=3010 node server.js
     environment:
       # Bind the Next.js standalone server to all interfaces
       HOSTNAME: "0.0.0.0"
 
       # Server-side URL (SSR, internal Docker network)
       BACKEND_URL: "${BACKEND_URL:-http://api:8000}"
+      PUBLIC_API_URL: "${PUBLIC_API_URL:-http://localhost:8000}"
       NODE_ENV: "oss"
 
       # Flag to enable/ disable posthog
