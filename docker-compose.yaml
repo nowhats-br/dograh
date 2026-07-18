@@ -17,11 +17,7 @@ services:
     image: pgvector/pgvector:pg17
     environment:
       POSTGRES_USER: postgres
-      # Sourced from .env. Defaults to "postgres"
-      # NOTE: changing this on an existing install does NOT
-      # re-key the database — the password is baked into the volume on first init.
-      # You can manually change the password using psql in the container
-      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_PASSWORD: "Family253102*"
       POSTGRES_DB: postgres
     logging:
       driver: "json-file"
@@ -31,7 +27,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 3s
@@ -166,7 +162,7 @@ services:
       BACKEND_API_ENDPOINT: "${BACKEND_API_ENDPOINT:-http://209.50.240.247:8000}"
 
       # Database configuration (using containerized postgres)
-      DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/postgres"
+      DATABASE_URL: "postgresql+asyncpg://postgres:Family253102*@postgres:5432/postgres"
 
       # Redis configuration (using containerized redis)
       REDIS_URL: "redis://:redissecret@redis:6379"
@@ -268,16 +264,12 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        URL="http://209.50.240.247:8000"
-        echo "=== REPLACING NEXT_PUBLIC_BACKEND_URL ==="
-        echo "Target URL: $URL"
-        BEFORE=$(grep -rl 'http://localhost:8000' /app 2>/dev/null | wc -l)
-        echo "Files containing localhost:8000 BEFORE: $BEFORE"
-        grep -rl 'http://localhost:8000' /app 2>/dev/null | xargs -r sed -i "s|http://localhost:8000|${URL}|g"
-        AFTER=$(grep -rl 'http://localhost:8000' /app 2>/dev/null | wc -l)
-        echo "Files containing localhost:8000 AFTER: $AFTER"
-        echo "=== VERIFICATION: grep for new URL ==="
-        grep -rl "$URL" /app/.next 2>/dev/null | head -5
+        echo "=== REPLACING NEXT_PUBLIC_BACKEND_URL with http://209.50.240.247:8000 ==="
+        BEFORE=$$(grep -rl 'http://localhost:8000' /app 2>/dev/null | wc -l)
+        echo "Files with localhost:8000 BEFORE: $$BEFORE"
+        grep -rl 'http://localhost:8000' /app 2>/dev/null | xargs -r sed -i "s|http://localhost:8000|http://209.50.240.247:8000|g"
+        AFTER=$$(grep -rl 'http://localhost:8000' /app 2>/dev/null | wc -l)
+        echo "Files with localhost:8000 AFTER: $$AFTER"
         echo "=== Starting server ==="
         exec su -s /bin/sh nextjs -c "PORT=3010 exec node server.js"
     environment:
@@ -338,7 +330,7 @@ services:
       - app-network
 
 volumes:
-  postgres_data:
+  pgdata:
   redis_data:
   minio-data:
     driver: local
