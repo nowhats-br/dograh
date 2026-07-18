@@ -163,7 +163,7 @@ services:
       # embed links from. Defaults to PUBLIC_BASE_URL. When the value is non-public
       # (localhost or a private/reserved IP), the API resolves a running Cloudflare
       # tunnel's URL at runtime instead (see api/utils/common.py).
-      BACKEND_API_ENDPOINT: "${BACKEND_API_ENDPOINT:-}"
+      BACKEND_API_ENDPOINT: "${BACKEND_API_ENDPOINT:-http://209.50.240.247:8000}"
 
       # Database configuration (using containerized postgres)
       DATABASE_URL: "postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/postgres"
