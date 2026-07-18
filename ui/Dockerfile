@@ -41,14 +41,11 @@ ENV NEXT_TELEMETRY_DISABLED="1"
 ENV NEXT_PUBLIC_CHATWOOT_URL="https://chat.dograh.com"
 ENV NEXT_PUBLIC_CHATWOOT_TOKEN="3fkFx2mCEjNHjM9gaNc4A82X"
 ENV BACKEND_URL="http://api:8000"
-ARG NEXT_PUBLIC_BACKEND_URL="http://209.50.240.247:8000"
-ENV NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
 
-# Build with reduced memory — skip linting and type checking
-ENV NODE_OPTIONS="--max-old-space-size=2048"
-ENV NEXT_DISABLE_ESLINT="1"
-ENV NEXT_DISABLE_TYPECHECK="1"
-RUN npm run build -- --no-lint && \
+# Build the application with standalone mode
+# Increase Node.js heap size to prevent out-of-memory errors during build
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+RUN npm run build && \
     rm -rf /tmp/* /root/.npm /root/.next/cache
 
 # Stage 3: Runner (production image)

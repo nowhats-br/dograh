@@ -263,11 +263,19 @@ services:
       - app-network
 
   ui:
-    build:
-      context: .
-      dockerfile: ui/Dockerfile
-      args:
-        NEXT_PUBLIC_BACKEND_URL: "${PUBLIC_API_URL:-http://209.50.240.247:8000}"
+    image: ${REGISTRY:-dograhai}/dograh-ui:latest
+    user: root
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        URL="${PUBLIC_API_URL:-http://209.50.240.247:8000}"
+        echo "Replacing NEXT_PUBLIC_BACKEND_URL with: $URL"
+        find /app -type f -name '*.js' | xargs grep -l 'http://localhost:8000' 2>/dev/null | wc -l
+        find /app -type f -name '*.js' | xargs grep -l 'http://localhost:8000' 2>/dev/null | xargs -r sed -i "s|http://localhost:8000|${URL}|g"
+        echo "Replacement done. Verifying..."
+        find /app -type f -name '*.js' | xargs grep -l 'http://localhost:8000' 2>/dev/null | wc -l
+        echo "Files with old URL remaining (should be 0). Starting server..."
+        exec su -s /bin/sh nextjs -c "PORT=3010 exec node server.js"
     environment:
       HOSTNAME: "0.0.0.0"
       BACKEND_URL: "${BACKEND_URL:-http://api:8000}"
