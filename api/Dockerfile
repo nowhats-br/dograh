@@ -35,8 +35,12 @@ RUN --mount=type=bind,source=api/requirements.txt,target=/tmp/req.txt \
 #   2. Pre-download NLTK's punkt_tab tokenizer so pipecat's text processing
 #      doesn't hit the network on first agent run. NLTK auto-finds it under
 #      sys.prefix/nltk_data, so it travels with the venv on COPY.
-RUN --mount=type=bind,source=pipecat,target=/tmp/pipecat,rw \
-    --mount=type=cache,target=/root/.cache/uv \
+# Layer 2: pipecat deps. Clone pipecat if submodule wasn't initialized (e.g. Dokploy).
+RUN git clone --depth 1 https://github.com/dograh-hq/pipecat.git /tmp/pipecat || true
+RUN if [ ! -f /tmp/pipecat/pyproject.toml ]; then \
+      git clone --depth 1 https://github.com/dograh-hq/pipecat.git /tmp/pipecat ; \
+    fi
+RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install '/tmp/pipecat[cartesia,deepgram,openai,elevenlabs,groq,google,azure,sarvam,soundfile,silero,webrtc,speechmatics,openrouter,camb,mcp,inworld,smallest]' \
  && uv pip uninstall opencv-python \
  && uv pip install opencv-python-headless \
