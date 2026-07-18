@@ -263,9 +263,7 @@ services:
       - app-network
 
   ui:
-    build:
-      context: .
-      dockerfile: ui/Dockerfile
+    image: ${REGISTRY:-dograhai}/dograh-ui:latest
     environment:
       # Bind the Next.js standalone server to all interfaces
       HOSTNAME: "0.0.0.0"
