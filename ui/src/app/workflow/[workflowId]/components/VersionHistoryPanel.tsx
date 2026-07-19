@@ -5,6 +5,7 @@ import { FileText, LoaderCircle, X } from "lucide-react";
 import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 
 export interface WorkflowVersion {
     id: number;
@@ -52,6 +53,7 @@ export const VersionHistoryPanel = ({
     loadingMore,
     onLoadMore,
 }: VersionHistoryPanelProps) => {
+    const { t } = useTranslation();
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === "Escape" && isOpen) {
@@ -71,7 +73,7 @@ export const VersionHistoryPanel = ({
             <div className="p-4 h-full overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-lg font-semibold text-white">
-                        Version History
+                        {t("workflow.versionHistory.title")}
                     </h2>
                     <Button
                         variant="ghost"
@@ -89,7 +91,7 @@ export const VersionHistoryPanel = ({
                     </div>
                 ) : versions.length === 0 ? (
                     <p className="text-sm text-gray-500 text-center py-8">
-                        No versions found.
+                        {t("workflow.versionHistory.noVersions")}
                     </p>
                 ) : (
                     <div className="space-y-2">
@@ -141,7 +143,7 @@ export const VersionHistoryPanel = ({
                                 {loadingMore ? (
                                     <LoaderCircle className="w-4 h-4 animate-spin" />
                                 ) : (
-                                    "Load more"
+                                    t("workflow.versionHistory.loadMore")
                                 )}
                             </Button>
                         )}

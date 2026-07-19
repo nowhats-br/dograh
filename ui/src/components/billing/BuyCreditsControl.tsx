@@ -15,6 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { PostHogEvent } from "@/constants/posthog-events";
 import { MAX_TOPUP_USD, MIN_TOPUP_USD, startTopUp, TOPUP_PRESETS } from "@/lib/billing/topup";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 
 // Round to whole cents and reject non-positive / non-finite input so a typo
 // (e.g. "5.999", "-1", "abc") can't produce a NaN or fractional-cent order.
@@ -25,6 +26,7 @@ const parseAmount = (raw: string): number | null => {
 };
 
 export function BuyCreditsControl({ className }: { className?: string }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const [custom, setCustom] = useState("");
@@ -62,7 +64,7 @@ export function BuyCreditsControl({ className }: { className?: string }) {
       await startTopUp(amount);
     } catch {
       // The seam is intentionally unimplemented until Razorpay lands.
-      setError("Self-serve top-up is coming soon. Use \"Hire an Expert\" or contact us for now.");
+      setError(t('buyCredits.comingSoon'));
     } finally {
       setBusy(false);
     }
@@ -78,13 +80,13 @@ export function BuyCreditsControl({ className }: { className?: string }) {
             className,
           )}
         >
-          Buy Credits
+          {t('buyCredits.buy')}
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-72 space-y-3">
         <div className="space-y-0.5">
-          <p className="text-sm font-medium">Top up credits</p>
-          <p className="text-xs text-muted-foreground">Pick an amount (min ${MIN_TOPUP_USD}).</p>
+          <p className="text-sm font-medium">{t('buyCredits.topUp')}</p>
+          <p className="text-xs text-muted-foreground">{t('buyCredits.pickAmount', { amount: MIN_TOPUP_USD })}</p>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -111,8 +113,8 @@ export function BuyCreditsControl({ className }: { className?: string }) {
               inputMode="decimal"
               value={custom}
               onChange={(e) => onCustomChange(e.target.value)}
-              placeholder="Custom"
-              aria-label={`Custom amount (min $${MIN_TOPUP_USD})`}
+              placeholder={t('buyCredits.custom')}
+              aria-label={t('buyCredits.customAmountLabel', { amount: MIN_TOPUP_USD })}
               className="h-9 w-24 pl-5"
             />
           </div>
@@ -126,7 +128,7 @@ export function BuyCreditsControl({ className }: { className?: string }) {
           disabled={!valid || busy}
           className="w-full bg-cta text-cta-foreground shadow-xs hover:bg-cta/90 focus-visible:ring-cta/50"
         >
-          {busy ? "Starting…" : valid && amount != null ? `Buy $${amount}` : "Buy Credits"}
+          {busy ? t('buyCredits.starting') : valid && amount != null ? t('buyCredits.buyAmount', { amount }) : t('buyCredits.buy')}
         </Button>
       </PopoverContent>
     </Popover>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 import { ChevronDown, Loader2, Search, Volume2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -39,6 +40,7 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
     allowManualInput = true,
     className,
 }) => {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [genderFilter, setGenderFilter] = useState(ALL_FILTER_VALUE);
@@ -94,7 +96,7 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
             }
         } catch (err) {
             console.error("Failed to fetch voices:", err);
-            setError("Failed to load voices");
+            setError(t('voiceSelector.loadError'));
             setVoices([]);
         } finally {
             setIsLoading(false);
@@ -198,7 +200,7 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
             return value;
         }
         const voice = voices.find((v) => v.voice_id === value);
-        return voice?.name || value || "Select a voice";
+        return voice?.name || value || t('voiceSelector.selectAVoice');
     };
 
     const playPreview = (previewUrl: string, voiceId: string) => {
@@ -238,7 +240,7 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
             <div className={cn("space-y-2", className)}>
                 <Input
                     type="text"
-                    placeholder="Enter voice ID"
+                    placeholder={t('voiceSelector.enterVoiceId')}
                     value={value || ""}
                     onChange={(e) => onChange(e.target.value)}
                 />
@@ -251,7 +253,7 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
             <div className={cn("space-y-2", className)}>
                 <Input
                     type="text"
-                    placeholder="Enter voice ID"
+                    placeholder={t('voiceSelector.enterVoiceId')}
                     value={manualVoiceId}
                     onChange={(e) => handleManualVoiceIdChange(e.target.value)}
                 />
@@ -265,7 +267,7 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
                         htmlFor="manual-voice-input"
                         className="text-sm font-normal cursor-pointer"
                     >
-                        Add Voice ID Manually
+                        {t('voiceSelector.addVoiceManually')}
                     </Label>
                 </div>
             </div>
@@ -287,7 +289,7 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
                         disabled={isLoading}
                     >
                         <span className="truncate">
-                            {isLoading ? "Loading voices..." : getSelectedVoiceName()}
+                            {isLoading ? t('voiceSelector.loadingVoices') : getSelectedVoiceName()}
                         </span>
                         {isLoading ? (
                             <Loader2 className="ml-2 h-4 w-4 shrink-0 animate-spin" />
@@ -301,7 +303,7 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
                         <div className="relative">
                             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
-                                placeholder="Search voices..."
+                                placeholder={t('voiceSelector.searchVoices')}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="pl-8"
@@ -312,10 +314,10 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
                             <div className="grid gap-2 sm:grid-cols-3">
                                 <Select value={genderFilter} onValueChange={setGenderFilter}>
                                     <SelectTrigger className="h-8">
-                                        <SelectValue placeholder="Gender" />
+                                        <SelectValue placeholder={t('voiceSelector.gender')} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value={ALL_FILTER_VALUE}>All genders</SelectItem>
+                                        <SelectItem value={ALL_FILTER_VALUE}>{t('voiceSelector.allGenders')}</SelectItem>
                                         {genderOptions.map((gender) => (
                                             <SelectItem key={gender} value={gender} className="capitalize">
                                                 {gender}
@@ -326,10 +328,10 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
 
                                 <Select value={languageFilter} onValueChange={setLanguageFilter}>
                                     <SelectTrigger className="h-8">
-                                        <SelectValue placeholder="Language" />
+                                        <SelectValue placeholder={t('voiceSelector.language')} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value={ALL_FILTER_VALUE}>All languages</SelectItem>
+                                        <SelectItem value={ALL_FILTER_VALUE}>{t('voiceSelector.allLanguages')}</SelectItem>
                                         {languageOptions.map((voiceLanguage) => (
                                             <SelectItem key={voiceLanguage} value={voiceLanguage} className="uppercase">
                                                 {voiceLanguage}
@@ -340,10 +342,10 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
 
                                 <Select value={accentFilter} onValueChange={setAccentFilter}>
                                     <SelectTrigger className="h-8">
-                                        <SelectValue placeholder="Accent" />
+                                        <SelectValue placeholder={t('voiceSelector.accent')} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value={ALL_FILTER_VALUE}>All accents</SelectItem>
+                                        <SelectItem value={ALL_FILTER_VALUE}>{t('voiceSelector.allAccents')}</SelectItem>
                                         {accentOptions.map((accent) => (
                                             <SelectItem key={accent} value={accent} className="uppercase">
                                                 {accent}
@@ -365,7 +367,7 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
                                 </div>
                             ) : filteredVoices.length === 0 ? (
                                 <p className="text-sm text-muted-foreground text-center py-4">
-                                    No voices found
+                                    {t('voiceSelector.noVoicesFound')}
                                 </p>
                             ) : (
                                 filteredVoices.map((voice) => (
@@ -447,14 +449,14 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
                                         htmlFor="manual-voice-input-popup"
                                         className="text-sm font-normal cursor-pointer"
                                     >
-                                        Add Voice ID Manually
+                                        {t('voiceSelector.addVoiceManually')}
                                     </Label>
                                 </div>
                             ) : (
                                 <span />
                             )}
                             <p className="text-xs text-muted-foreground">
-                                {filteredVoices.length} of {voices.length} voices
+                                {t('voiceSelector.voiceCount', { count: filteredVoices.length, total: voices.length })}
                             </p>
                         </div>
                     </div>

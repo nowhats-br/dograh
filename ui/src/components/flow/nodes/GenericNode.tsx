@@ -16,6 +16,7 @@ import { NODE_DOCUMENTATION_URLS } from "@/constants/documentation";
 import { useAppConfig } from "@/context/AppConfigContext";
 import { cn } from "@/lib/utils";
 import { resolveWebhookBaseUrl } from "@/lib/webhookUrl";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 
 import { NodeContent } from "./common/NodeContent";
 import { NodeEditDialog } from "./common/NodeEditDialog";
@@ -140,26 +141,27 @@ function resolveIntegrationSummary(
 function getBadgeForSpec(
     spec: NodeSpec | undefined,
     variant: NodeStyleVariant,
+    t: (key: string) => string,
 ): { label: string; className: string } {
     if (!spec) {
-        return { label: "Node", className: "bg-zinc-500 text-white" };
+        return { label: t('flow.genericNode.badgeNode'), className: "bg-zinc-500 text-white" };
     }
 
     switch (variant) {
         case "start":
-            return { label: "Start Node", className: "bg-emerald-500 text-white" };
+            return { label: t('flow.genericNode.badgeStart'), className: "bg-emerald-500 text-white" };
         case "agent":
-            return { label: "Agent Node", className: "bg-blue-500 text-white" };
+            return { label: t('flow.genericNode.badgeAgent'), className: "bg-blue-500 text-white" };
         case "end":
-            return { label: "End Node", className: "bg-rose-500 text-white" };
+            return { label: t('flow.genericNode.badgeEnd'), className: "bg-rose-500 text-white" };
         case "global":
-            return { label: "Global Node", className: "bg-amber-500 text-white" };
+            return { label: t('flow.genericNode.badgeGlobal'), className: "bg-amber-500 text-white" };
         case "trigger":
-            return { label: "API Trigger", className: "bg-purple-500 text-white" };
+            return { label: t('flow.genericNode.badgeTrigger'), className: "bg-purple-500 text-white" };
         case "webhook":
-            return { label: "Webhook", className: "bg-indigo-500 text-white" };
+            return { label: t('flow.genericNode.badgeWebhook'), className: "bg-indigo-500 text-white" };
         case "qa":
-            return { label: "QA Analysis", className: "bg-teal-500 text-white" };
+            return { label: t('flow.genericNode.badgeQa'), className: "bg-teal-500 text-white" };
         case "integration":
             return { label: spec.display_name, className: "bg-cyan-600 text-white" };
     }
@@ -182,6 +184,7 @@ function CanvasPreview({
     onStaleTools: (uuids: string[]) => void;
     onStaleDocuments: (uuids: string[]) => void;
 }) {
+    const { t } = useTranslation();
     const { config: appConfig } = useAppConfig();
     if (spec.name === "trigger") {
         const endpoint = buildTriggerEndpoints(
@@ -190,10 +193,10 @@ function CanvasPreview({
         ).production;
         return (
             <div className="space-y-2">
-                <p className="text-xs text-muted-foreground">API Endpoint:</p>
+                <p className="text-xs text-muted-foreground">{t('flow.genericNode.apiEndpoint')}</p>
                 <div className="flex items-center gap-1">
                     <code className="text-xs break-all bg-muted px-1 py-0.5 rounded flex-1">
-                        {endpoint || "Generating..."}
+                        {endpoint || t('flow.genericNode.generating')}
                     </code>
                     <Button
                         variant="ghost"
@@ -220,7 +223,7 @@ function CanvasPreview({
         const url = data.endpoint_url || "";
         const enabled = data.enabled !== false;
         const truncated = !url
-            ? "Not configured"
+            ? t('flow.genericNode.notConfigured')
             : url.length > 30
             ? url.slice(0, 30) + "..."
             : url;
@@ -242,7 +245,7 @@ function CanvasPreview({
     if (spec.name === "qa") {
         const llmSource =
             data.qa_use_workflow_llm !== false
-                ? "Workflow LLM"
+                ? t('flow.genericNode.workflowLlm')
                 : `${data.qa_provider || "openai"}/${data.qa_model || "gpt-4.1"}`;
         const enabled = data.qa_enabled !== false;
         return (
@@ -259,7 +262,8 @@ function CanvasPreview({
 
     if (spec.category === "integration") {
         const enabled = resolveIntegrationEnabled(spec, data);
-        const destination = resolveIntegrationSummary(spec, data);
+        const rawDestination = resolveIntegrationSummary(spec, data);
+        const destination = rawDestination === "Not configured" ? t('flow.genericNode.notConfigured') : rawDestination;
         return (
             <div className="space-y-2">
                 <div className="flex items-center gap-2">
@@ -278,13 +282,13 @@ function CanvasPreview({
     return (
         <>
             <p className="text-sm text-muted-foreground line-clamp-5 leading-relaxed">
-                {data.prompt || "No prompt configured"}
+                {data.prompt || t('flow.genericNode.noPrompt')}
             </p>
             {hasToolRefs && data.tool_uuids && data.tool_uuids.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-border/50">
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
                         <LucideIcons.Wrench className="h-3 w-3" />
-                        <span>Tools:</span>
+                        <span>{t('flow.genericNode.toolsLabel')}</span>
                     </div>
                     <ToolBadges
                         toolUuids={data.tool_uuids}
@@ -297,7 +301,7 @@ function CanvasPreview({
                 <div className="mt-3 pt-3 border-t border-border/50">
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
                         <LucideIcons.FileText className="h-3 w-3" />
-                        <span>Documents:</span>
+                        <span>{t('flow.genericNode.documentsLabel')}</span>
                     </div>
                     <DocumentBadges
                         documentUuids={data.document_uuids}
@@ -310,6 +314,7 @@ function CanvasPreview({
 }
 
 function StatusDot({ enabled }: { enabled: boolean }) {
+    const { t } = useTranslation();
     return (
         <div className="flex items-center gap-1.5">
             <Circle
@@ -320,7 +325,7 @@ function StatusDot({ enabled }: { enabled: boolean }) {
                 }`}
             />
             <span className="text-xs text-muted-foreground">
-                {enabled ? "Enabled" : "Disabled"}
+                {enabled ? t('common.enabled') : t('common.disabled')}
             </span>
         </div>
     );
@@ -346,6 +351,7 @@ function ClickToCopy({
     className?: string;
     title?: string;
 }) {
+    const { t } = useTranslation();
     const [copied, setCopied] = useState(false);
     const onCopy = async () => {
         if (!value) return;
@@ -357,7 +363,7 @@ function ClickToCopy({
         <button
             type="button"
             onClick={onCopy}
-            title={title ?? "Click to copy"}
+            title={title ?? t('common.clickToCopy')}
             className={cn(
                 "group relative text-left transition-colors hover:bg-accent/60 cursor-pointer disabled:cursor-default",
                 className,
@@ -372,7 +378,7 @@ function ClickToCopy({
                     copied ? "opacity-100" : "opacity-0",
                 )}
             >
-                Copied!
+                {t('common.copied')}
             </span>
         </button>
     );
@@ -394,23 +400,23 @@ function UrlPanel({
                 </span>
                 <ClickToCopy
                     value={endpoint}
-                    title="Click to copy URL"
+                    title={t('flow.genericNode.clickToCopyUrl')}
                     className="flex-1 bg-muted rounded px-2 py-1"
                 >
                     <code className="text-xs break-all">
-                        {endpoint || "Generating..."}
+                        {endpoint || t('flow.genericNode.generating')}
                     </code>
                 </ClickToCopy>
             </div>
             <p className="text-xs text-muted-foreground">{helperText}</p>
-            <p className="text-sm font-medium pt-2">Example Request</p>
+            <p className="text-sm font-medium pt-2">{t('flow.genericNode.exampleRequest')}</p>
             <ClickToCopy
                 value={curl}
-                title="Click to copy curl"
+                title={t('flow.genericNode.clickToCopyCurl')}
                 className="block w-full bg-muted rounded"
             >
                 <pre className="text-xs px-3 py-2 overflow-x-auto whitespace-pre-wrap">
-                    {curl || "Generating..."}
+                    {curl || t('flow.genericNode.generating')}
                 </pre>
             </ClickToCopy>
         </div>
@@ -418,36 +424,35 @@ function UrlPanel({
 }
 
 function TriggerWebhookUrls({ endpoints }: { endpoints: TriggerEndpoints }) {
+    const { t } = useTranslation();
     return (
         <div className="grid gap-2">
-            <p className="text-sm font-medium">Webhook URLs</p>
+            <p className="text-sm font-medium">{t('flow.genericNode.webhookUrls')}</p>
             <p className="text-xs text-muted-foreground">
-                Test mode runs the latest draft so you can verify changes before
-                publishing. Production runs the published agent. Both require an
-                API key in the X-API-Key header.{" "}
+                {t('flow.genericNode.webhookDescription')}{" "}
                 <Link
                     href="/api-keys"
                     target="_blank"
                     className="text-primary underline hover:no-underline"
                 >
-                    Get your API key
+                    {t('flow.genericNode.getYourApiKey')}
                 </Link>
             </p>
             <Tabs defaultValue="test" className="w-full">
                 <TabsList>
-                    <TabsTrigger value="test">Test URL</TabsTrigger>
-                    <TabsTrigger value="production">Production URL</TabsTrigger>
+                    <TabsTrigger value="test">{t('flow.genericNode.testUrl')}</TabsTrigger>
+                    <TabsTrigger value="production">{t('flow.genericNode.productionUrl')}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="test">
                     <UrlPanel
                         endpoint={endpoints.test}
-                        helperText="Runs the latest draft, falling back to the published agent when no draft exists."
+                        helperText={t('flow.genericNode.testUrlDescription')}
                     />
                 </TabsContent>
                 <TabsContent value="production">
                     <UrlPanel
                         endpoint={endpoints.production}
-                        helperText="Runs the published agent."
+                        helperText={t('flow.genericNode.productionUrlDescription')}
                     />
                 </TabsContent>
             </Tabs>
@@ -463,6 +468,8 @@ interface GenericNodeProps extends NodeProps {
 }
 
 export const GenericNode = memo(({ data, selected, id, type }: GenericNodeProps) => {
+    const { t } = useTranslation();
+
     // Per-type metadata that StartCall/EndCall used to set via `additionalData`
     // (is_start / is_end). Pulled from the spec name here.
     const additionalData = useMemo<Record<string, boolean> | undefined>(() => {
@@ -595,17 +602,17 @@ export const GenericNode = memo(({ data, selected, id, type }: GenericNodeProps)
         (spec?.category === "integration"
             ? { source: false, target: false }
             : { source: true, target: true });
-    const badge = getBadgeForSpec(spec, styleVariant);
+    const badge = getBadgeForSpec(spec, styleVariant, t);
     const Icon = spec ? resolveIcon(spec.icon) : Circle;
     const docUrl = spec?.docs_url ?? DOC_URL_BY_SPEC[type];
     const contentLabel = spec?.properties.some((p) => p.name === "prompt")
-        ? "Prompt"
-        : "Details";
+        ? t('flow.genericNode.contentPrompt')
+        : t('flow.genericNode.contentDetails');
 
     // Edit dialog title: "Edit {display_name}". Webhook keeps the original
     // "Edit Webhook" wording — display_name is "Webhook" so it works out.
-    const dialogTitle = spec ? `Edit ${spec.display_name}` : "Edit Node";
-    const fallbackTitle = spec?.display_name ?? "Node";
+    const dialogTitle = spec ? `Edit ${spec.display_name}` : t('flow.genericNode.editNode');
+    const fallbackTitle = spec?.display_name ?? t('flow.genericNode.badgeNode');
 
     return (
         <>

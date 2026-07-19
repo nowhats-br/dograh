@@ -1,3 +1,4 @@
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 import { cn } from "@/lib/utils";
 
 // Reusable Dograh wordmark. Theme-aware by default: the dark logo shows on light
@@ -15,24 +16,25 @@ export function BrandLogo({
   inverse?: boolean;
   mark?: boolean;
 }) {
+  const { t } = useTranslation();
   if (mark) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src="/dograh-mark.png" alt="Dograh" className={cn("w-auto select-none", className)} />
+      <img src="/dograh-mark.png" alt={t('brand.logo')} className={cn("w-auto select-none", className)} />
     );
   }
   if (inverse) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src="/dograh-logo-inverse.png" alt="Dograh" className={cn("w-auto select-none", className)} />
+      <img src="/dograh-logo-inverse.png" alt={t('brand.logo')} className={cn("w-auto select-none", className)} />
     );
   }
   return (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/dograh-logo.png" alt="Dograh" className={cn("block w-auto select-none dark:hidden", className)} />
+      <img src="/dograh-logo.png" alt={t('brand.logo')} className={cn("block w-auto select-none dark:hidden", className)} />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/dograh-logo-inverse.png" alt="Dograh" className={cn("hidden w-auto select-none dark:block", className)} />
+      <img src="/dograh-logo-inverse.png" alt={t('brand.logo')} className={cn("hidden w-auto select-none dark:block", className)} />
     </>
   );
 }

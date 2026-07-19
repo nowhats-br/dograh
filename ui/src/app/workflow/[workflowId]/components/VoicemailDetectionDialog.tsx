@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { LLMConfigSelector } from "@/components/LLMConfigSelector";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 import {
     Dialog,
     DialogContent,
@@ -56,6 +57,7 @@ export const VoicemailDetectionDialog = ({
     workflowConfigurations,
     onSave,
 }: VoicemailDetectionDialogProps) => {
+    const { t } = useTranslation();
     const getConfig = (): VoicemailDetectionConfiguration => ({
         ...DEFAULT_VOICEMAIL_DETECTION_CONFIGURATION,
         ...workflowConfigurations.voicemail_detection,
@@ -112,10 +114,9 @@ export const VoicemailDetectionDialog = ({
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Voicemail Detection</DialogTitle>
+                    <DialogTitle>{t('workflow.voicemail.title')}</DialogTitle>
                     <DialogDescription>
-                        Configure voicemail detection to automatically detect and end calls
-                        when a voicemail system is reached.
+                        {t('workflow.voicemail.description')}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -126,7 +127,7 @@ export const VoicemailDetectionDialog = ({
                             checked={enabled}
                             onCheckedChange={setEnabled}
                         />
-                        <Label htmlFor="voicemail-enabled">Enable Voicemail Detection</Label>
+                        <Label htmlFor="voicemail-enabled">{t('workflow.voicemail.enable')}</Label>
                     </div>
 
                     {enabled && (
@@ -139,9 +140,9 @@ export const VoicemailDetectionDialog = ({
                                         checked={useWorkflowLlm}
                                         onCheckedChange={setUseWorkflowLlm}
                                     />
-                                    <Label htmlFor="voicemail-use-workflow-llm">Use Workflow LLM</Label>
+                                    <Label htmlFor="voicemail-use-workflow-llm">{t('workflow.voicemail.useWorkflowLlm')}</Label>
                                     <Label className="text-xs text-muted-foreground ml-2">
-                                        Use the LLM configured in your account settings.
+                                        {t('workflow.voicemail.useWorkflowLlmDescription')}
                                     </Label>
                                 </div>
 
@@ -159,10 +160,9 @@ export const VoicemailDetectionDialog = ({
 
                             {/* System Prompt */}
                             <div className="grid gap-2">
-                                <Label>System Prompt</Label>
+                                <Label>{t('workflow.voicemail.systemPrompt')}</Label>
                                 <Label className="text-xs text-muted-foreground">
-                                    Prompt for voicemail classification.
-                                    The LLM must respond with either &quot;CONVERSATION&quot; or &quot;VOICEMAIL&quot;.
+                                    {t('workflow.voicemail.systemPromptDescription')}
                                 </Label>
                                 <Textarea
                                     value={systemPrompt}
@@ -173,11 +173,11 @@ export const VoicemailDetectionDialog = ({
 
                             {/* Timing Configuration */}
                             <div className="grid gap-4 p-3 border rounded-md bg-muted/10">
-                                <Label className="font-medium">Timing</Label>
+                                <Label className="font-medium">{t('workflow.voicemail.timing')}</Label>
                                 <div className="space-y-2">
-                                    <Label className="text-sm">Speech Cutoff (seconds)</Label>
+                                    <Label className="text-sm">{t('workflow.voicemail.speechCutoff')}</Label>
                                     <Label className="text-xs text-muted-foreground">
-                                        Trigger classification early if first turn speech exceeds this duration.
+                                        {t('workflow.voicemail.speechCutoffDescription')}
                                     </Label>
                                     <Input
                                         type="number"
@@ -195,9 +195,9 @@ export const VoicemailDetectionDialog = ({
 
                 <DialogFooter>
                     <Button variant="outline" onClick={() => onOpenChange(false)}>
-                        Cancel
+                        {t('common.cancel')}
                     </Button>
-                    <Button onClick={handleSave}>Save</Button>
+                    <Button onClick={handleSave}>{t('common.save')}</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

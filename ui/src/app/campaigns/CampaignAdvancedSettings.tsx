@@ -7,6 +7,7 @@ import TimezoneSelect, { type ITimezoneOption } from 'react-timezone-select';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useTranslation } from '@/lib/i18n/LocaleContext';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -116,34 +117,40 @@ export default function CampaignAdvancedSettings({
     circuitBreakerWindowSeconds, onCircuitBreakerWindowSecondsChange,
     circuitBreakerMinCalls, onCircuitBreakerMinCallsChange,
 }: CampaignAdvancedSettingsProps) {
+    const { t } = useTranslation();
     const timezoneSelectId = useId();
 
     return (
         <div className="space-y-6">
             {/* Max Concurrent Calls */}
             <div className="space-y-2">
-                <Label htmlFor="max-concurrency">Max Concurrent Calls</Label>
+                <Label htmlFor="max-concurrency">{t("campaigns.advancedSettings.maxConcurrency")}</Label>
                 <Input
                     id="max-concurrency"
                     type="number"
-                    placeholder={`Default: ${effectiveLimit}`}
+                    placeholder={t("campaigns.advancedSettings.defaultPlaceholder", { value: String(effectiveLimit) })}
                     value={maxConcurrency}
                     onChange={(e) => onMaxConcurrencyChange(e.target.value)}
                     min={1}
                     max={effectiveLimit}
                 />
                 <p className="text-sm text-muted-foreground">
-                    Maximum number of simultaneous calls. Leave empty to use {effectiveLimit}.
-                    {fromNumbersCount > 0 && ` You have ${fromNumbersCount} CLI${fromNumbersCount !== 1 ? 's' : ''} and an org limit of ${orgConcurrentLimit}.`}
+                    {t("campaigns.advancedSettings.maxConcurrencyDescription", { effectiveLimit: String(effectiveLimit) })}
                 </p>
                 {fromNumbersCount > 0 && fromNumbersCount < orgConcurrentLimit && (
                     <p className="text-sm text-amber-600 dark:text-amber-400">
-                        Concurrency is limited to {fromNumbersCount} by your configured phone numbers. To use the full org limit of {orgConcurrentLimit}, add more CLIs in <Link href="/telephony-configurations" className="underline font-medium">Telephony Configuration</Link>.
+                        {t("campaigns.advancedSettings.concurrencyLimitedWarning", {
+                            count: String(fromNumbersCount),
+                            orgLimit: String(orgConcurrentLimit),
+                        })}{" "}
+                        <Link href="/telephony-configurations" className="underline font-medium">{t("campaigns.advancedSettings.telephonyConfigLink")}</Link>.
                     </p>
                 )}
                 {fromNumbersCount === 0 && (
                     <p className="text-sm text-amber-600 dark:text-amber-400">
-                        No phone numbers configured. Add CLIs in <Link href="/telephony-configurations" className="underline font-medium">Telephony Configuration</Link> before running the campaign.
+                        {t("campaigns.advancedSettings.phoneNumbersWarning")}{" "}
+                        <Link href="/telephony-configurations" className="underline font-medium">{t("campaigns.advancedSettings.telephonyConfigLink")}</Link>{" "}
+                        {t("campaigns.advancedSettings.phoneNumbersWarningSuffix")}
                     </p>
                 )}
             </div>
@@ -152,9 +159,9 @@ export default function CampaignAdvancedSettings({
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <Label htmlFor="retry-enabled">Enable Retries</Label>
+                        <Label htmlFor="retry-enabled">{t("campaigns.advancedSettings.enableRetries")}</Label>
                         <p className="text-sm text-muted-foreground">
-                            Automatically retry failed calls
+                            {t("campaigns.advancedSettings.retryDescription")}
                         </p>
                     </div>
                     <Switch
@@ -168,7 +175,7 @@ export default function CampaignAdvancedSettings({
                     <div className="space-y-4 pl-4 border-l-2 border-muted">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="max-retries">Max Retries</Label>
+                                <Label htmlFor="max-retries">{t("campaigns.advancedSettings.maxRetries")}</Label>
                                 <Input
                                     id="max-retries"
                                     type="number"
@@ -179,7 +186,7 @@ export default function CampaignAdvancedSettings({
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="retry-delay">Retry Delay (seconds)</Label>
+                                <Label htmlFor="retry-delay">{t("campaigns.advancedSettings.retryDelay")}</Label>
                                 <Input
                                     id="retry-delay"
                                     type="number"
@@ -192,18 +199,18 @@ export default function CampaignAdvancedSettings({
                         </div>
 
                         <div className="space-y-3">
-                            <Label>Retry On</Label>
+                            <Label>{t("campaigns.advancedSettings.retryOn")}</Label>
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-sm">Busy Signal</span>
+                                    <span className="text-sm">{t("campaigns.advancedSettings.busySignal")}</span>
                                     <Switch checked={retryOnBusy} onCheckedChange={onRetryOnBusyChange} />
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-sm">No Answer</span>
+                                    <span className="text-sm">{t("campaigns.advancedSettings.noAnswer")}</span>
                                     <Switch checked={retryOnNoAnswer} onCheckedChange={onRetryOnNoAnswerChange} />
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-sm">Voicemail</span>
+                                    <span className="text-sm">{t("campaigns.advancedSettings.voicemail")}</span>
                                     <Switch checked={retryOnVoicemail} onCheckedChange={onRetryOnVoicemailChange} />
                                 </div>
                             </div>
@@ -218,9 +225,9 @@ export default function CampaignAdvancedSettings({
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <Label htmlFor="schedule-enabled">Call Schedule</Label>
+                        <Label htmlFor="schedule-enabled">{t("campaigns.advancedSettings.callSchedule")}</Label>
                         <p className="text-sm text-muted-foreground">
-                            Restrict when calls are made
+                            {t("campaigns.advancedSettings.callScheduleDescription")}
                         </p>
                     </div>
                     <Switch
@@ -233,7 +240,7 @@ export default function CampaignAdvancedSettings({
                 {scheduleEnabled && (
                     <div className="space-y-4 pl-4 border-l-2 border-muted">
                         <div className="space-y-2">
-                            <Label>Timezone</Label>
+                            <Label>{t("campaigns.advancedSettings.timezone")}</Label>
                             <TimezoneSelect
                                 instanceId={timezoneSelectId}
                                 value={scheduleTimezone}
@@ -243,7 +250,7 @@ export default function CampaignAdvancedSettings({
                         </div>
 
                         <div className="space-y-3">
-                            <Label>Time Slots</Label>
+                            <Label>{t("campaigns.advancedSettings.timeSlots")}</Label>
                             {timeSlots.map((slot, index) => (
                                 <div key={index} className="flex items-center gap-2">
                                     <Select
@@ -258,7 +265,15 @@ export default function CampaignAdvancedSettings({
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => (
+                                            {[
+                                                t("campaigns.detail.mon"),
+                                                t("campaigns.detail.tue"),
+                                                t("campaigns.detail.wed"),
+                                                t("campaigns.detail.thu"),
+                                                t("campaigns.detail.fri"),
+                                                t("campaigns.detail.sat"),
+                                                t("campaigns.detail.sun"),
+                                            ].map((day, i) => (
                                                 <SelectItem key={i} value={String(i)}>{day}</SelectItem>
                                             ))}
                                         </SelectContent>
@@ -273,7 +288,7 @@ export default function CampaignAdvancedSettings({
                                         }}
                                         className="w-[130px]"
                                     />
-                                    <span className="text-sm text-muted-foreground">to</span>
+                                    <span className="text-sm text-muted-foreground">{t("campaigns.advancedSettings.to")}</span>
                                     <Input
                                         type="time"
                                         value={slot.end_time}
@@ -303,7 +318,7 @@ export default function CampaignAdvancedSettings({
                                 onClick={() => onTimeSlotsChange([...timeSlots, { day_of_week: 0, start_time: '09:00', end_time: '17:00' }])}
                             >
                                 <Plus className="h-4 w-4 mr-1" />
-                                Add Time Slot
+                                {t("campaigns.advancedSettings.addTimeSlot")}
                             </Button>
                         </div>
                     </div>
@@ -316,9 +331,9 @@ export default function CampaignAdvancedSettings({
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <Label htmlFor="circuit-breaker-enabled">Circuit Breaker</Label>
+                        <Label htmlFor="circuit-breaker-enabled">{t("campaigns.advancedSettings.circuitBreaker")}</Label>
                         <p className="text-sm text-muted-foreground">
-                            Auto-pause campaign on high failure rates
+                            {t("campaigns.advancedSettings.circuitBreakerDescription")}
                         </p>
                     </div>
                     <Switch
@@ -331,7 +346,7 @@ export default function CampaignAdvancedSettings({
                 {circuitBreakerEnabled && (
                     <div className="space-y-4 pl-4 border-l-2 border-muted">
                         <div className="space-y-2">
-                            <Label htmlFor="cb-failure-threshold">Failure Threshold (%)</Label>
+                            <Label htmlFor="cb-failure-threshold">{t("campaigns.advancedSettings.failureThreshold")}</Label>
                             <Input
                                 id="cb-failure-threshold"
                                 type="number"
@@ -341,12 +356,12 @@ export default function CampaignAdvancedSettings({
                                 max={100}
                             />
                             <p className="text-sm text-muted-foreground">
-                                Pause when failure rate exceeds this percentage
+                                {t("campaigns.advancedSettings.failureThresholdDescription")}
                             </p>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="cb-window">Window (seconds)</Label>
+                                <Label htmlFor="cb-window">{t("campaigns.advancedSettings.window")}</Label>
                                 <Input
                                     id="cb-window"
                                     type="number"
@@ -357,7 +372,7 @@ export default function CampaignAdvancedSettings({
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="cb-min-calls">Min Calls in Window</Label>
+                                <Label htmlFor="cb-min-calls">{t("campaigns.advancedSettings.minCalls")}</Label>
                                 <Input
                                     id="cb-min-calls"
                                     type="number"

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 import { Check, ChevronDown, Loader2, Pencil, Play, Square } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -76,6 +77,7 @@ export const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
     allowManualInput = false,
     className,
 }) => {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [voices, setVoices] = useState<VoiceInfo[]>([]);
     const [facets, setFacets] = useState<Facets>(EMPTY_FACETS);
@@ -159,7 +161,7 @@ export const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
             if (id !== requestId.current) return; // a newer request superseded this one
 
             if (response.error) {
-                setError("Failed to load voices");
+                setError(t('voiceSelector.loadError'));
                 setVoices([]);
             } else {
                 setVoices(response.data?.voices ?? []);
@@ -244,7 +246,7 @@ export const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
         setIsOpen(false);
     };
 
-    const triggerLabel = selectedVoiceInfo?.name || value || "Select a voice";
+    const triggerLabel = selectedVoiceInfo?.name || value || t('voiceSelector.selectAVoice');
     const triggerTraits = selectedVoiceInfo ? voiceTraits(selectedVoiceInfo) : "";
 
     return (
@@ -267,17 +269,17 @@ export const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
                 <DialogContent className="flex max-h-[85vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl">
                     <DialogHeader className="border-b px-6 py-4">
-                        <DialogTitle>Select Voice</DialogTitle>
+                        <DialogTitle>{t('voiceSelector.selectVoice')}</DialogTitle>
                     </DialogHeader>
 
                     {/* Filter row: Gender · Accent · Language · Search */}
                     <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3">
                         <Select value={gender} onValueChange={setGender} disabled={manualMode}>
                             <SelectTrigger className="h-9 w-[130px]">
-                                <SelectValue placeholder="Gender" />
+                                <SelectValue placeholder={t('voiceSelector.gender')} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value={ALL_FILTER_VALUE}>All genders</SelectItem>
+                                <SelectItem value={ALL_FILTER_VALUE}>{t('voiceSelector.allGenders')}</SelectItem>
                                 {genderOptions.map((option) => (
                                     <SelectItem key={option.value} value={option.value}>
                                         {option.label}
@@ -288,10 +290,10 @@ export const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
 
                         <Select value={accent} onValueChange={setAccent} disabled={manualMode}>
                             <SelectTrigger className="h-9 w-[140px]">
-                                <SelectValue placeholder="Accent" />
+                                <SelectValue placeholder={t('voiceSelector.accent')} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value={ALL_FILTER_VALUE}>All accents</SelectItem>
+                                <SelectItem value={ALL_FILTER_VALUE}>{t('voiceSelector.allAccents')}</SelectItem>
                                 {accentOptions.map((option) => (
                                     <SelectItem key={option.value} value={option.value}>
                                         {option.label}
@@ -302,10 +304,10 @@ export const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
 
                         <Select value={language} onValueChange={setLanguage} disabled={manualMode}>
                             <SelectTrigger className="h-9 w-[150px]">
-                                <SelectValue placeholder="Language" />
+                                <SelectValue placeholder={t('voiceSelector.language')} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value={ALL_FILTER_VALUE}>All languages</SelectItem>
+                                <SelectItem value={ALL_FILTER_VALUE}>{t('voiceSelector.allLanguages')}</SelectItem>
                                 {languageOptions.map((option) => (
                                     <SelectItem key={option.value} value={option.value}>
                                         {option.label}
@@ -315,7 +317,7 @@ export const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
                         </Select>
 
                         <Input
-                            placeholder="Search voices..."
+                            placeholder={t('voiceSelector.searchVoices')}
                             value={searchInput}
                             onChange={(event) => setSearchInput(event.target.value)}
                             className="h-9 min-w-[160px] flex-1"
@@ -327,16 +329,16 @@ export const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
                     <div className="min-h-[260px] flex-1 overflow-auto px-6 py-4">
                         {manualMode ? (
                             <div className="space-y-2">
-                                <Label htmlFor="manual-voice-id">Custom voice ID</Label>
+                                <Label htmlFor="manual-voice-id">{t('voiceSelector.customVoiceId')}</Label>
                                 <Input
                                     id="manual-voice-id"
-                                    placeholder="Enter voice ID"
+                                    placeholder={t('voiceSelector.enterVoiceId')}
                                     value={manualVoiceId}
                                     onChange={(event) => setManualVoiceId(event.target.value)}
                                     autoFocus
                                 />
                                 <p className="text-xs text-muted-foreground">
-                                    Use a voice ID that isn&apos;t in the catalog above.
+                                    {t('voiceSelector.customVoiceHint')}
                                 </p>
                             </div>
                         ) : error ? (
@@ -347,7 +349,7 @@ export const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
                             </div>
                         ) : voices.length === 0 ? (
                             <p className="py-10 text-center text-sm text-muted-foreground">
-                                No voices match these filters
+                                {t('voiceSelector.noVoicesMatch')}
                             </p>
                         ) : (
                             <div className="grid gap-2 sm:grid-cols-2">
@@ -424,23 +426,23 @@ export const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
                                 onClick={() => setManualMode((prev) => !prev)}
                             >
                                 <Pencil className="mr-2 h-4 w-4" />
-                                {manualMode ? "Browse catalog" : "Custom voice ID"}
+                                {manualMode ? t('voiceSelector.browseCatalog') : t('voiceSelector.customVoiceId')}
                             </Button>
                         ) : (
                             <span className="text-xs text-muted-foreground">
-                                {!manualMode && !isLoading && !error ? `${voices.length} voices` : ""}
+                                {!manualMode && !isLoading && !error ? t('voiceSelector.totalVoices', { count: voices.length }) : ""}
                             </span>
                         )}
                         <div className="flex items-center gap-2">
                             <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
-                                Cancel
+                                {t('common.cancel')}
                             </Button>
                             <Button
                                 type="button"
                                 onClick={commitSelection}
                                 disabled={manualMode ? !manualVoiceId.trim() : !pendingVoiceId}
                             >
-                                Use this voice
+                                {t('voiceSelector.useThisVoice')}
                             </Button>
                         </div>
                     </div>

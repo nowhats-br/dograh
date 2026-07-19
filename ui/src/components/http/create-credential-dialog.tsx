@@ -24,6 +24,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/lib/auth";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 
 interface CreateCredentialDialogProps {
     open: boolean;
@@ -38,26 +39,26 @@ interface CredentialField {
     isSecret?: boolean;
 }
 
-const getCredentialDataFields = (type: WebhookCredentialType): CredentialField[] => {
+const getCredentialDataFields = (type: WebhookCredentialType, t: (key: string) => string): CredentialField[] => {
     switch (type) {
         case "api_key":
             return [
-                { key: "header_name", label: "Header Name", placeholder: "X-API-Key" },
-                { key: "api_key", label: "API Key", placeholder: "your-api-key", isSecret: true },
+                { key: "header_name", label: t('credential.fields.headerName'), placeholder: t('credential.fields.headerNamePlaceholder') },
+                { key: "api_key", label: t('credential.fields.apiKey'), placeholder: t('credential.fields.apiKeyPlaceholder'), isSecret: true },
             ];
         case "bearer_token":
             return [
-                { key: "token", label: "Token", placeholder: "your-bearer-token", isSecret: true },
+                { key: "token", label: t('credential.fields.token'), placeholder: t('credential.fields.tokenPlaceholder'), isSecret: true },
             ];
         case "basic_auth":
             return [
-                { key: "username", label: "Username", placeholder: "username" },
-                { key: "password", label: "Password", placeholder: "password", isSecret: true },
+                { key: "username", label: t('credential.fields.username'), placeholder: t('credential.fields.usernamePlaceholder') },
+                { key: "password", label: t('credential.fields.password'), placeholder: t('credential.fields.passwordPlaceholder'), isSecret: true },
             ];
         case "custom_header":
             return [
-                { key: "header_name", label: "Header Name", placeholder: "X-Custom-Header" },
-                { key: "header_value", label: "Header Value", placeholder: "header-value", isSecret: true },
+                { key: "header_name", label: t('credential.fields.headerName'), placeholder: t('credential.fields.headerNamePlaceholder') },
+                { key: "header_value", label: t('credential.fields.headerValue'), placeholder: t('credential.fields.headerValuePlaceholder'), isSecret: true },
             ];
         default:
             return [];
@@ -69,6 +70,7 @@ export function CreateCredentialDialog({
     onOpenChange,
     onCreated,
 }: CreateCredentialDialogProps) {
+    const { t } = useTranslation();
     const { getAccessToken } = useAuth();
 
     const [name, setName] = useState("");
@@ -98,7 +100,7 @@ export function CreateCredentialDialog({
 
             if (response.error) {
                 const errorDetail = (response.error as { detail?: string })?.detail
-                    || "Failed to create credential";
+                    || t('credential.createDialog.errorPrefix');
                 setError(errorDetail);
                 return;
             }
@@ -110,7 +112,7 @@ export function CreateCredentialDialog({
         } catch (err) {
             console.error("Failed to create credential:", err);
             setError(
-                err instanceof Error ? err.message : "An unexpected error occurred"
+                err instanceof Error ? err.message : t('credential.createDialog.unexpectedError')
             );
         } finally {
             setIsCreating(false);
@@ -134,15 +136,15 @@ export function CreateCredentialDialog({
         onOpenChange(newOpen);
     };
 
-    const fields = getCredentialDataFields(credentialType);
+    const fields = getCredentialDataFields(credentialType, t);
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Add Credential</DialogTitle>
+                    <DialogTitle>{t('credential.createDialog.title')}</DialogTitle>
                     <DialogDescription>
-                        Create a new credential for authentication.
+                        {t('credential.createDialog.description')}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -155,27 +157,27 @@ export function CreateCredentialDialog({
 
                 <div className="space-y-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="cred-name">Name *</Label>
+                        <Label htmlFor="cred-name">{t('credential.createDialog.nameLabel')}</Label>
                         <Input
                             id="cred-name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="My API Key"
+                            placeholder={t('credential.createDialog.namePlaceholder')}
                         />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="cred-description">Description</Label>
+                        <Label htmlFor="cred-description">{t('credential.createDialog.descriptionLabel')}</Label>
                         <Input
                             id="cred-description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Optional description"
+                            placeholder={t('credential.createDialog.descriptionPlaceholder')}
                         />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label>Credential Type</Label>
+                        <Label>{t('credential.createDialog.credentialType')}</Label>
                         <Select
                             value={credentialType}
                             onValueChange={(v) => {
@@ -187,10 +189,10 @@ export function CreateCredentialDialog({
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="bearer_token">Bearer Token</SelectItem>
-                                <SelectItem value="api_key">API Key</SelectItem>
-                                <SelectItem value="basic_auth">Basic Auth</SelectItem>
-                                <SelectItem value="custom_header">Custom Header</SelectItem>
+                                <SelectItem value="bearer_token">{t('credential.types.bearerToken')}</SelectItem>
+                                <SelectItem value="api_key">{t('credential.types.apiKey')}</SelectItem>
+                                <SelectItem value="basic_auth">{t('credential.types.basicAuth')}</SelectItem>
+                                <SelectItem value="custom_header">{t('credential.types.customHeader')}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -220,7 +222,7 @@ export function CreateCredentialDialog({
                         onClick={handleClose}
                         disabled={isCreating}
                     >
-                        Cancel
+                        {t('common.cancel')}
                     </Button>
                     <Button
                         onClick={handleCreate}
@@ -229,10 +231,10 @@ export function CreateCredentialDialog({
                         {isCreating ? (
                             <>
                                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                Creating...
+                                {t('common.creating')}
                             </>
                         ) : (
-                            "Create"
+                            t('common.create')
                         )}
                     </Button>
                 </DialogFooter>

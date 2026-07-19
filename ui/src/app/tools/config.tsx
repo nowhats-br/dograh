@@ -1,7 +1,7 @@
 "use client";
 
 import { Calculator, Cog, Globe, type LucideIcon, PhoneForwarded, PhoneOff, Puzzle } from "lucide-react";
-import { type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import type {
     CalculatorToolDefinition,
@@ -142,24 +142,24 @@ export function renderToolIcon(category: string, className: string = "w-5 h-5 te
     return <Icon className={className} />;
 }
 
-export function getToolTypeLabel(category: string): string {
+export function getToolTypeLabel(category: string, t: (key: string) => string): string {
     switch (category) {
         case "end_call":
-            return "End Call Tool";
+            return t("tools.config.type.endCall");
         case "transfer_call":
-            return "Transfer Call Tool";
+            return t("tools.config.type.transferCall");
         case "http_api":
-            return "HTTP API Tool";
+            return t("tools.config.type.httpApi");
         case "calculator":
-            return "Calculator Tool";
+            return t("tools.config.type.calculator");
         case "native":
-            return "Native Tool";
+            return t("tools.config.type.native");
         case "integration":
-            return "Integration Tool";
+            return t("tools.config.type.integration");
         case "mcp":
-            return "MCP Server Tool";
+            return t("tools.config.type.mcp");
         default:
-            return "Tool";
+            return t("tools.config.type.default");
     }
 }
 

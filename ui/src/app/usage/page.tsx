@@ -26,6 +26,7 @@ import {
 import { useUserConfig } from '@/context/UserConfigContext';
 import { detailFromError } from '@/lib/apiError';
 import { useAuth } from '@/lib/auth';
+import { useTranslation } from '@/lib/i18n/LocaleContext';
 import { usageFilterAttributes } from '@/lib/filterAttributes';
 import { decodeFiltersFromURL, encodeFiltersToURL } from '@/lib/filters';
 import type { ActiveFilter, DateRangeValue, FilterAttribute, NumberFilterOption } from '@/types/filters';
@@ -44,12 +45,12 @@ const buildAgentFilterAttributes = (
 
         return {
             ...attribute,
-            label: 'Agent',
+            label: t('usage.filterAgent'),
             type: 'numberSelect',
             config: {
                 ...attribute.config,
-                placeholder: 'Select an agent',
-                numberSelectLabel: 'Agent',
+                placeholder: t('usage.filterSelectAgent'),
+                numberSelectLabel: t('usage.filterAgent'),
                 ...(agentOptions || isLoadingAgentOptions
                     ? {
                         numberSelectOptions: agentOptions ?? [],
@@ -64,6 +65,7 @@ const buildAgentFilterAttributes = (
 export default function UsagePage() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { t } = useTranslation();
     const { organizationPricing } = useUserConfig();
     const auth = useAuth();
 
@@ -196,7 +198,7 @@ export default function UsagePage() {
                 },
             });
             if (response.error) {
-                throw new Error(detailFromError(response.error, 'Failed to load agents'));
+                throw new Error(detailFromError(response.error, t('usage.failedLoadAgents')));
             }
 
             const options = [...(response.data ?? [])]
@@ -204,7 +206,7 @@ export default function UsagePage() {
                     a.name.localeCompare(b.name) || a.id - b.id
                 ))
                 .map((workflow: WorkflowSummaryResponse) => ({
-                    label: `${workflow.name || 'Untitled Agent'} (#${workflow.id})`,
+                    label: `${workflow.name || t('usage.agentLabel')} (#${workflow.id})`,
                     value: workflow.id,
                 }));
             setAgentFilterOptions(options);
@@ -254,11 +256,11 @@ export default function UsagePage() {
                 a.remove();
                 window.URL.revokeObjectURL(url);
             } else {
-                toast.error('Failed to download report');
+                toast.error(t('usage.failedDownloadReport'));
             }
         } catch (error) {
             console.error('Failed to download usage report:', error);
-            toast.error('Failed to download report');
+            toast.error(t('usage.failedDownloadReport'));
         } finally {
             setIsDownloadingReport(false);
         }
@@ -278,7 +280,7 @@ export default function UsagePage() {
                 },
             });
             if (response.error) {
-                throw new Error('Failed to save timezone');
+                throw new Error(t('usage.failedSaveTimezone'));
             }
             setPreferences(response.data || { ...preferences, timezone: tzValue });
         } catch (error) {
@@ -421,8 +423,8 @@ export default function UsagePage() {
             <div>
                 <div className="flex justify-between items-start">
                     <div>
-                        <h1 className="text-3xl font-bold mb-2">Agent Runs</h1>
-                        <p className="text-muted-foreground">See all your Agent Runs across all Voice Agents. You can use filters to filter out required Agent Runs.</p>
+                        <h1 className="text-3xl font-bold mb-2">{t('usage.title')}</h1>
+                        <p className="text-muted-foreground">{t('usage.description')}</p>
                     </div>
                         <div className="flex items-center gap-2">
                             <Globe className="h-4 w-4 text-muted-foreground" />
@@ -432,7 +434,7 @@ export default function UsagePage() {
                                     value={selectedTimezone}
                                     onChange={handleTimezoneChange}
                                     isDisabled={savingTimezone || preferencesLoading}
-                                    placeholder={preferencesLoading ? "Loading..." : "Select timezone"}
+                                    placeholder={preferencesLoading ? t('usage.loading') : t('usage.selectTimezone')}
                                     styles={{
                                         control: (base, state) => ({
                                             ...base,
@@ -529,7 +531,7 @@ export default function UsagePage() {
                                 disabled={isDownloadingReport}
                             >
                                 <Download className="h-4 w-4 mr-2" />
-                                {isDownloadingReport ? 'Preparing...' : 'Download Filtered Results'}
+                                {isDownloadingReport ? t('usage.downloadPreparing') : t('usage.downloadFilteredResults')}
                             </Button>
                         </div>
                     )}
@@ -540,9 +542,9 @@ export default function UsagePage() {
                     <CardHeader>
                         <div className="flex justify-between items-start">
                             <div className="space-y-1.5">
-                                <CardTitle>All Runs</CardTitle>
+                                <CardTitle>{t('usage.allRuns')}</CardTitle>
                                 <CardDescription>
-                                    Every agent run across your organization, with usage details
+                                    {t('usage.allRunsDescription')}
                                 </CardDescription>
                             </div>
                         </div>
@@ -560,17 +562,17 @@ export default function UsagePage() {
                                     <Table>
                                         <TableHeader>
                                             <TableRow className="bg-muted/50">
-                                                <TableHead className="font-semibold">Run ID</TableHead>
-                                                <TableHead className="font-semibold">Agent Name</TableHead>
-                                                <TableHead className="font-semibold">Call Type</TableHead>
-                                                <TableHead className="font-semibold">Phone Number</TableHead>
-                                                <TableHead className="font-semibold">Disposition</TableHead>
-                                                <TableHead className="font-semibold">Date</TableHead>
-                                                <TableHead className="font-semibold text-right">Duration</TableHead>
+                                                <TableHead className="font-semibold">{t('usage.table.runId')}</TableHead>
+                                                <TableHead className="font-semibold">{t('usage.table.agentName')}</TableHead>
+                                                <TableHead className="font-semibold">{t('usage.table.callType')}</TableHead>
+                                                <TableHead className="font-semibold">{t('usage.table.phoneNumber')}</TableHead>
+                                                <TableHead className="font-semibold">{t('usage.table.disposition')}</TableHead>
+                                                <TableHead className="font-semibold">{t('usage.table.date')}</TableHead>
+                                                <TableHead className="font-semibold text-right">{t('usage.table.duration')}</TableHead>
                                                 {organizationPricing?.price_per_second_usd && (
-                                                    <TableHead className="font-semibold text-right">Cost (USD)</TableHead>
+                                                    <TableHead className="font-semibold text-right">{t('usage.table.cost')}</TableHead>
                                                 )}
-                                                <TableHead className="font-semibold">Actions</TableHead>
+                                                <TableHead className="font-semibold">{t('usage.table.actions')}</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -584,7 +586,7 @@ export default function UsagePage() {
                                                     >
                                                         #{run.id}
                                                     </TableCell>
-                                                    <TableCell>{run.workflow_name || 'Unknown'}</TableCell>
+                                                    <TableCell>{run.workflow_name || t('usage.unknown')}</TableCell>
                                                     <TableCell>
                                                         <CallTypeCell mode={run.mode} callType={run.call_type} />
                                                     </TableCell>
@@ -632,13 +634,10 @@ export default function UsagePage() {
                                 {appliedFilters.length > 0 && (
                                     <div className="mt-4 p-3 bg-muted rounded-md">
                                         <p className="text-sm text-muted-foreground">
-                                            Total for filtered period: <span className="font-semibold text-foreground">
-                                                {usageHistory.total_dograh_tokens.toLocaleString()} Dograh Tokens
-                                            </span>
-                                            {' • '}
-                                            <span className="font-semibold text-foreground">
-                                                {formatDuration(usageHistory.total_duration_seconds)}
-                                            </span>
+                                            {t('usage.totalForFilteredPeriod', {
+                                                tokens: usageHistory.total_dograh_tokens.toLocaleString(),
+                                                duration: formatDuration(usageHistory.total_duration_seconds)
+                                            })}
                                         </p>
                                     </div>
                                 )}
@@ -647,7 +646,7 @@ export default function UsagePage() {
                                 {usageHistory.total_pages > 1 && (
                                     <div className="flex items-center justify-between mt-6">
                                         <p className="text-sm text-muted-foreground">
-                                            Page {usageHistory.page} of {usageHistory.total_pages} ({usageHistory.total_count} total runs)
+                                            {t('usage.pageInfo', { page: usageHistory.page, totalPages: usageHistory.total_pages, totalCount: usageHistory.total_count })}
                                         </p>
                                         <div className="flex gap-2">
                                             <Button
@@ -657,7 +656,7 @@ export default function UsagePage() {
                                                 disabled={currentPage === 1}
                                             >
                                                 <ChevronLeft className="h-4 w-4" />
-                                                Previous
+                                                {t('usage.previous')}
                                             </Button>
                                             <Button
                                                 variant="outline"
@@ -665,7 +664,7 @@ export default function UsagePage() {
                                                 onClick={() => handlePageChange(currentPage + 1)}
                                                 disabled={currentPage === usageHistory.total_pages}
                                             >
-                                                Next
+                                                {t('usage.next')}
                                                 <ChevronRight className="h-4 w-4" />
                                             </Button>
                                         </div>
@@ -673,7 +672,7 @@ export default function UsagePage() {
                                 )}
                             </>
                         ) : (
-                            <p className="text-center py-8 text-muted-foreground">No runs found</p>
+                            <p className="text-center py-8 text-muted-foreground">{t('usage.noRunsFound')}</p>
                         )}
                     </CardContent>
                 </Card>

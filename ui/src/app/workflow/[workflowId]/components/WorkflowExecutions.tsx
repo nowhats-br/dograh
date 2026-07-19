@@ -7,6 +7,7 @@ import { getWorkflowApiV1WorkflowFetchWorkflowIdGet, getWorkflowRunsApiV1Workflo
 import { WorkflowRunResponseSchema } from "@/client/types.gen";
 import { WorkflowRunsTable } from "@/components/workflow-runs";
 import { useAuth } from '@/lib/auth';
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 import { decodeFiltersFromURL, encodeFiltersToURL } from "@/lib/filters";
 import { ActiveFilter, availableAttributes, FilterAttribute } from "@/types/filters";
 
@@ -16,6 +17,7 @@ interface WorkflowExecutionsProps {
 }
 
 export function WorkflowExecutions({ workflowId, searchParams }: WorkflowExecutionsProps) {
+    const { t } = useTranslation();
     const router = useRouter();
     const [workflowRuns, setWorkflowRuns] = useState<WorkflowRunResponseSchema[]>([]);
     const [loading, setLoading] = useState(true);
@@ -115,7 +117,7 @@ export function WorkflowExecutions({ workflowId, searchParams }: WorkflowExecuti
             });
 
             if (response.error) {
-                throw new Error("Failed to fetch workflow runs");
+                throw new Error(t("workflow.executions.fetchFailed"));
             }
 
             if (response.data) {
@@ -127,7 +129,7 @@ export function WorkflowExecutions({ workflowId, searchParams }: WorkflowExecuti
             setError(null);
         } catch (err) {
             console.error("Error fetching workflow runs:", err);
-            setError("Failed to load workflow runs");
+            setError(t("workflow.executions.loadFailed"));
         } finally {
             setLoading(false);
         }

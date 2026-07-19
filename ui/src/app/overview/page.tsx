@@ -6,8 +6,10 @@ import { GitHubStarBadge } from '@/components/layout/GitHubStarBadge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/lib/auth';
+import { useTranslation } from '@/lib/i18n/LocaleContext';
 
 export default function OverviewPage() {
+    const { t } = useTranslation();
     const { user, provider } = useAuth();
     const isOSSMode = provider !== 'stack';
 
@@ -19,25 +21,25 @@ export default function OverviewPage() {
                     <CardHeader>
                         <CardTitle className="text-3xl">
                             {isOSSMode ? (
-                                "Welcome to Dograh"
+                                t('overview.welcomeOSS')
                             ) : (
-                                `Welcome${user?.displayName ? `, ${user.displayName.split(' ')[0]}` : ''}!`
+                                user?.displayName
+                                    ? `${t('overview.welcome')}, ${user.displayName.split(' ')[0]}!`
+                                    : `${t('overview.welcome')}!`
                             )}
                         </CardTitle>
                         <CardDescription className="text-lg mt-2">
                             {isOSSMode ? (
-                                <>
-                                    Open source alternative to Vapi. Help us support the project by giving us a star on GitHub.
-                                </>
+                                t('overview.welcomeDescriptionOSS')
                             ) : (
-                                "Get started with building voice AI workflows"
+                                t('overview.welcomeDescriptionCloud')
                             )}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {isOSSMode && (
                             <div className="mb-6">
-                                <GitHubStarBadge label="Star us on GitHub" showCount source="overview_page" />
+                                <GitHubStarBadge label={t('overview.starOnGitHub')} showCount source="overview_page" />
                             </div>
                         )}
                     </CardContent>
@@ -47,15 +49,15 @@ export default function OverviewPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Create and Manage your Voice Agents</CardTitle>
+                            <CardTitle>{t('overview.agentsTitle')}</CardTitle>
                             <CardDescription>
-                                Build powerful AI Voice Agents with our visual editor
+                                {t('overview.agentsDescription')}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <Button asChild>
                                 <Link href="/workflow">
-                                    Go to Agents
+                                    {t('overview.agentsAction')}
                                 </Link>
                             </Button>
                         </CardContent>
@@ -63,15 +65,15 @@ export default function OverviewPage() {
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Configure Services</CardTitle>
+                            <CardTitle>{t('overview.servicesTitle')}</CardTitle>
                             <CardDescription>
-                                Set up your AI services like LLM, TTS, and STT providers
+                                {t('overview.servicesDescription')}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <Button asChild variant="outline">
                                 <Link href="/model-configurations">
-                                    Configure Models
+                                    {t('overview.servicesAction')}
                                 </Link>
                             </Button>
                         </CardContent>
@@ -81,9 +83,9 @@ export default function OverviewPage() {
                 {/* Resources Section */}
                 <Card className="mt-8">
                     <CardHeader>
-                        <CardTitle>Resources</CardTitle>
+                        <CardTitle>{t('overview.resourcesTitle')}</CardTitle>
                         <CardDescription>
-                            Get help and learn more about Dograh
+                            {t('overview.resourcesDescription')}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -94,7 +96,7 @@ export default function OverviewPage() {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
-                                    Documentation
+                                    {t('overview.resourcesDocumentation')}
                                 </a>
                             </Button>
                             <Button asChild variant="outline">
@@ -103,7 +105,7 @@ export default function OverviewPage() {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
-                                    Report an Issue
+                                    {t('overview.resourcesReportIssue')}
                                 </a>
                             </Button>
                         </div>

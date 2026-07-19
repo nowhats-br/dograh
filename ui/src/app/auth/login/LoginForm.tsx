@@ -10,8 +10,10 @@ import { AuthShell } from "@/components/auth/AuthShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 
 export function LoginForm({ signupEnabled }: { signupEnabled: boolean }) {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,7 +29,7 @@ export function LoginForm({ signupEnabled }: { signupEnabled: boolean }) {
 
       if (res.error || !res.data) {
         const detail = (res.error as { detail?: string })?.detail;
-        toast.error(detail || "Login failed");
+        toast.error(detail || t('auth.login.failed'));
         return;
       }
 
@@ -40,7 +42,7 @@ export function LoginForm({ signupEnabled }: { signupEnabled: boolean }) {
 
       window.location.href = "/after-sign-in";
     } catch {
-      toast.error("An error occurred. Please try again.");
+      toast.error(t('auth.login.errorOccurred'));
     } finally {
       setLoading(false);
     }
@@ -49,45 +51,45 @@ export function LoginForm({ signupEnabled }: { signupEnabled: boolean }) {
   return (
     <AuthShell enterpriseSlot={<AuthEnterpriseCTA />}>
       <div className="space-y-1.5 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t('auth.login.title')}</h1>
         <p className="text-sm text-muted-foreground">
-          Enter your email and password to continue
+          {t('auth.login.subtitle')}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t('auth.login.email')}</Label>
           <Input
             id="email"
             type="email"
-            placeholder="you@example.com"
+            placeholder={t('auth.login.emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t('auth.login.password')}</Label>
           <Input
             id="password"
             type="password"
-            placeholder="Enter your password"
+            placeholder={t('auth.login.passwordPlaceholder')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Signing in..." : "Sign in"}
+          {loading ? t('auth.login.signingIn') : t('auth.login.submit')}
         </Button>
       </form>
 
       {signupEnabled && (
         <p className="text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
+          {t('auth.login.noAccount')}{" "}
           <Link href="/auth/signup" className="text-primary underline-offset-4 hover:underline">
-            Sign up
+            {t('auth.login.signupLink')}
           </Link>
         </p>
       )}

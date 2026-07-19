@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import SpinLoader from "@/components/SpinLoader";
 import { useAuth } from "@/lib/auth";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 import { reloadApp } from "@/lib/browserReload";
 import logger from "@/lib/logger";
 
@@ -35,6 +36,7 @@ export function SidebarTeamSwitcher() {
 }
 
 function SidebarTeamSwitcherContent({ user }: { user: CurrentUser }) {
+  const { t } = useTranslation();
   const [isSwitching, setIsSwitching] = useState(false);
 
   const handleChange = async (team: Team | null) => {
@@ -45,7 +47,7 @@ function SidebarTeamSwitcherContent({ user }: { user: CurrentUser }) {
       reloadApp();
     } catch (error) {
       logger.error("Failed to switch Stack team", error);
-      toast.error("Could not switch teams. Please try again.");
+      toast.error(t("sidebarTeam.switchError"));
       setIsSwitching(false);
     }
   };
@@ -70,7 +72,7 @@ function SidebarTeamSwitcherContent({ user }: { user: CurrentUser }) {
           role="status"
           aria-live="polite"
         >
-          <SpinLoader label="Switching teams..." />
+          <SpinLoader label={t("sidebarTeam.switchingTeams")} />
         </div>
       )}
     </div>

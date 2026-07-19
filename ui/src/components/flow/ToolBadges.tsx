@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useWorkflow } from "@/app/workflow/[workflowId]/contexts/WorkflowContext";
 import type { ToolResponse } from "@/client/types.gen";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 
 interface ToolBadgesProps {
     toolUuids: string[];
@@ -13,6 +14,7 @@ interface ToolBadgesProps {
 }
 
 export function ToolBadges({ toolUuids, onStaleUuidsDetected, mcpToolFilters }: ToolBadgesProps) {
+    const { t } = useTranslation();
     const { tools } = useWorkflow();
     const [selectedTools, setSelectedTools] = useState<ToolResponse[]>([]);
 
@@ -43,7 +45,7 @@ export function ToolBadges({ toolUuids, onStaleUuidsDetected, mcpToolFilters }: 
         return (
             <div className="flex flex-wrap gap-1">
                 <Badge variant="outline" className="text-xs">
-                    Loading...
+                    {t('common.loading')}
                 </Badge>
             </div>
         );

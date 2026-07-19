@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from '@/lib/auth';
+import { useTranslation } from '@/lib/i18n/LocaleContext';
 import{ superadminFilterAttributes } from "@/lib/filterAttributes";
 import { decodeFiltersFromURL, encodeFiltersToURL } from '@/lib/filters';
 import { impersonateAsSuperadmin } from '@/lib/utils';
@@ -55,6 +56,7 @@ interface WorkflowRunsResponse {
 
 
 export default function RunsPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const searchParams = useSearchParams();
     const [runs, setRuns] = useState<WorkflowRun[]>([]);
@@ -143,7 +145,7 @@ export default function RunsPage() {
                 setTotalCount(data.total_count);
             }
         } catch (err) {
-            setError("Failed to fetch workflow runs. Please try again.");
+            setError(t('superadmin.runs.fetchError'));
             console.error("Fetch runs error:", err);
         } finally {
             if (!isAutoRefresh) {
@@ -275,7 +277,7 @@ export default function RunsPage() {
                 });
             } catch (err) {
                 console.error('Failed to impersonate user', err);
-                alert('Failed to impersonate the user. Please try again.');
+                alert(t('superadmin.runs.failedToImpersonate'));
             }
         },
         [auth],
@@ -286,7 +288,7 @@ export default function RunsPage() {
             <div className="container mx-auto p-6 flex items-center justify-center min-h-[400px]">
                 <div className="flex items-center space-x-2">
                     <Loader2 className="h-6 w-6 animate-spin" />
-                    <span>Loading workflow runs...</span>
+                    <span>{t('superadmin.runs.loading')}</span>
                 </div>
             </div>
         );
@@ -295,8 +297,8 @@ export default function RunsPage() {
     return (
         <div className="container mx-auto p-6 space-y-6 max-w-full">
             <div>
-                <h1 className="text-3xl font-bold mb-2">Workflow Runs</h1>
-                <p className="text-muted-foreground">View and manage all workflow runs across organizations</p>
+                <h1 className="text-3xl font-bold mb-2">{t('superadmin.runs.title')}</h1>
+                <p className="text-muted-foreground">{t('superadmin.runs.description')}</p>
             </div>
 
             {error && (
@@ -321,15 +323,15 @@ export default function RunsPage() {
                     <CardHeader>
                         <div className="flex items-center justify-between">
                             <div>
-                                <CardTitle>All Workflow Runs</CardTitle>
+                                <CardTitle>{t('superadmin.runs.allRuns')}</CardTitle>
                                 <CardDescription>
-                                    Showing {runs.length} of {totalCount} total runs
+                                    {t('superadmin.runs.showingOf', { shown: runs.length, total: totalCount })}
                                 </CardDescription>
                             </div>
                             {isAutoRefreshing && (
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                     <RefreshCw className="h-4 w-4 animate-spin" />
-                                    <span>Refreshing...</span>
+                                    <span>{t('superadmin.runs.refreshing')}</span>
                                 </div>
                             )}
                         </div>
@@ -337,7 +339,7 @@ export default function RunsPage() {
                     <CardContent>
                         {runs.length === 0 ? (
                             <div className="text-center py-8 text-muted-foreground">
-                                No workflow runs found.
+                                {t('superadmin.runs.noRunsFound')}
                             </div>
                         ) : (
                             <>
@@ -345,17 +347,17 @@ export default function RunsPage() {
                                     <Table>
                                         <TableHeader>
                                             <TableRow className="bg-muted">
-                                                <TableHead className="font-semibold">ID</TableHead>
-                                                <TableHead className="font-semibold">Workflow</TableHead>
-                                                <TableHead className="font-semibold">Status</TableHead>
-                                                <TableHead className="font-semibold">Disposition</TableHead>
-                                                <TableHead className="font-semibold">Tags</TableHead>
+                                                <TableHead className="font-semibold">{t('superadmin.runs.table.id')}</TableHead>
+                                                <TableHead className="font-semibold">{t('superadmin.runs.table.workflow')}</TableHead>
+                                                <TableHead className="font-semibold">{t('superadmin.runs.table.status')}</TableHead>
+                                                <TableHead className="font-semibold">{t('superadmin.runs.table.disposition')}</TableHead>
+                                                <TableHead className="font-semibold">{t('superadmin.runs.table.tags')}</TableHead>
                                                 <TableHead
                                                     className="font-semibold cursor-pointer hover:bg-muted/50 select-none"
                                                     onClick={() => handleSort('duration')}
                                                 >
                                                     <div className="flex items-center gap-1">
-                                                        Duration
+                                                        {t('superadmin.runs.table.duration')}
                                                         {sortBy === 'duration' ? (
                                                             sortOrder === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />
                                                         ) : (
@@ -363,13 +365,13 @@ export default function RunsPage() {
                                                         )}
                                                     </div>
                                                 </TableHead>
-                                                <TableHead className="font-semibold">Details</TableHead>
+                                                <TableHead className="font-semibold">{t('superadmin.runs.table.details')}</TableHead>
                                                 <TableHead
                                                     className="font-semibold cursor-pointer hover:bg-muted/50 select-none"
                                                     onClick={() => handleSort('created_at')}
                                                 >
                                                     <div className="flex items-center gap-1">
-                                                        Created At
+                                                        {t('superadmin.runs.table.createdAt')}
                                                         {sortBy === 'created_at' ? (
                                                             sortOrder === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />
                                                         ) : (
@@ -377,7 +379,7 @@ export default function RunsPage() {
                                                         )}
                                                     </div>
                                                 </TableHead>
-                                                <TableHead className="font-semibold">Actions</TableHead>
+                                                <TableHead className="font-semibold">{t('superadmin.runs.table.actions')}</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -395,10 +397,10 @@ export default function RunsPage() {
                                                                     run.workflow_name.length > 15
                                                                         ? `${run.workflow_name.substring(0, 15)}...`
                                                                         : run.workflow_name
-                                                                ) : 'Unknown Workflow'}
+                                                                )                                                                         : t('superadmin.runs.unknownWorkflow')}
                                                             </span>
                                                             <span className="text-xs text-muted-foreground font-mono">
-                                                                ID: {String(run.workflow_id).length > 12
+                                                                {t('superadmin.runs.idLabel')} {String(run.workflow_id).length > 12
                                                                     ? `${String(run.workflow_id).substring(0, 12)}...`
                                                                     : run.workflow_id}
                                                             </span>
@@ -446,7 +448,7 @@ export default function RunsPage() {
                                                                         <Info className="h-4 w-4 text-blue-500 cursor-pointer" />
                                                                     </TooltipTrigger>
                                                                     <TooltipContent sideOffset={4} className="max-w-sm whitespace-pre-wrap break-words">
-                                                                        <p className="font-semibold text-xs mb-1">Gathered Context</p>
+                                                                        <p className="font-semibold text-xs mb-1">{t('superadmin.runs.gatheredContext')}</p>
                                                                         <pre className="max-w-sm whitespace-pre-wrap break-words text-xs">
                                                                             {JSON.stringify(run.gathered_context, null, 2)}
                                                                         </pre>
@@ -459,7 +461,7 @@ export default function RunsPage() {
                                                                         <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />
                                                                     </TooltipTrigger>
                                                                     <TooltipContent sideOffset={4} className="max-w-sm whitespace-pre-wrap break-words">
-                                                                        <p className="font-semibold text-xs mb-1">Usage Info</p>
+                                                                        <p className="font-semibold text-xs mb-1">{t('superadmin.runs.usageInfo')}</p>
                                                                         <pre className="max-w-sm whitespace-pre-wrap break-words text-xs">
                                                                             {JSON.stringify(run.usage_info, null, 2)}
                                                                         </pre>
@@ -508,7 +510,7 @@ export default function RunsPage() {
                                                             >
                                                                 <Image
                                                                     src="/axiom_icon.svg"
-                                                                    alt="Traces"
+                                                                    alt={t('superadmin.runs.traces')}
                                                                     width={16}
                                                                     height={16}
                                                                     className="h-4 w-4"
@@ -534,7 +536,7 @@ export default function RunsPage() {
                                                             >
                                                                 <Image
                                                                     src="/langfuse_icon.svg"
-                                                                    alt="Langfuse Traces"
+                                                                    alt={t('superadmin.runs.langfuseTraces')}
                                                                     width={16}
                                                                     height={16}
                                                                     className="h-4 w-4"
@@ -546,7 +548,7 @@ export default function RunsPage() {
                                                             <Button
                                                                 variant="outline"
                                                                 size="icon"
-                                                                title="Open workflow as user"
+                                                                title={t('superadmin.runs.openWorkflowAsUser')}
                                                                 disabled={!run.user_id}
                                                                 onClick={() => {
                                                                     impersonateAndMaybeRedirect(
@@ -561,7 +563,7 @@ export default function RunsPage() {
                                                             <Button
                                                                 variant="outline"
                                                                 size="icon"
-                                                                title="Open run details as user"
+                                                                title={t('superadmin.runs.openRunDetailsAsUser')}
                                                                 disabled={!run.user_id}
                                                                 onClick={() => {
                                                                     impersonateAndMaybeRedirect(
@@ -585,7 +587,7 @@ export default function RunsPage() {
                                 {totalPages > 1 && (
                                     <div className="flex items-center justify-between mt-6">
                                         <div className="text-sm text-muted-foreground">
-                                            Page {currentPage} of {totalPages} ({totalCount} total runs)
+                                            {t('superadmin.runs.pageInfo', { page: currentPage, totalPages, totalCount })}
                                         </div>
                                         <div className="flex space-x-2">
                                             <Button
@@ -595,7 +597,7 @@ export default function RunsPage() {
                                                 disabled={currentPage === 1 || isLoading}
                                             >
                                                 <ChevronLeft className="h-4 w-4 mr-1" />
-                                                Previous
+                                                {t('superadmin.runs.previous')}
                                             </Button>
 
                                             {/* Page numbers */}
@@ -630,7 +632,7 @@ export default function RunsPage() {
                                                 onClick={() => handlePageChange(currentPage + 1)}
                                                 disabled={currentPage === totalPages || isLoading}
                                             >
-                                                Next
+                                                {t('superadmin.runs.next')}
                                                 <ChevronRight className="h-4 w-4 ml-1" />
                                             </Button>
                                         </div>

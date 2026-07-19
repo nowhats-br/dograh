@@ -47,6 +47,7 @@ import { cn } from '@/lib/utils';
 
 import { WorkflowTable } from '../WorkflowTable';
 import { FolderFormDialog } from './FolderFormDialog';
+import { useTranslation } from '@/lib/i18n/LocaleContext';
 
 /**
  * - `folder`        — a real, renameable/deletable folder of active agents
@@ -73,6 +74,7 @@ export function FolderSection({
     allFolders = [],
     defaultOpen,
 }: FolderSectionProps) {
+    const { t } = useTranslation();
     const router = useRouter();
     const [open, setOpen] = useState(defaultOpen ?? kind === 'uncategorized');
     const [isRenaming, setIsRenaming] = useState(false);
@@ -82,7 +84,7 @@ export function FolderSection({
     const isFolder = kind === 'folder';
     const isArchived = kind === 'archived';
     const count = workflows.length;
-    const title = isFolder ? (folder?.name ?? '') : isArchived ? 'Archived' : 'Uncategorized';
+    const title = isFolder ? (folder?.name ?? '') : isArchived ? t('workflow.folders.folderSection.archived') : t('workflow.folders.folderSection.uncategorized');
 
     const handleRename = async (name: string) => {
         if (!folder) return;
@@ -93,11 +95,11 @@ export function FolderSection({
         if (response.error) {
             const detail =
                 (response.error as { detail?: string })?.detail ??
-                'Failed to rename folder';
+                t('workflow.folders.folderSection.failedToRename');
             toast.error(detail);
             throw new Error(detail);
         }
-        toast.success('Folder renamed');
+        toast.success(t('workflow.folders.folderSection.folderRenamed'));
         router.refresh();
     };
 
@@ -109,14 +111,14 @@ export function FolderSection({
                 path: { folder_id: folder.id },
             });
             if (response.error) {
-                throw new Error('Failed to delete folder');
+                throw new Error(t('workflow.folders.folderSection.failedToDelete'));
             }
-            toast.success(`Folder "${folder.name}" deleted`);
+            toast.success(t('workflow.folders.folderSection.folderDeleted', { name: folder.name }));
             setConfirmDelete(false);
             router.refresh();
         } catch (err) {
             logger.error(`Error deleting folder: ${err}`);
-            toast.error('Failed to delete folder');
+            toast.error(t('workflow.folders.folderSection.failedToDelete'));
         } finally {
             setIsDeleting(false);
         }
@@ -129,7 +131,7 @@ export function FolderSection({
                     <CollapsibleTrigger asChild>
                         <button
                             className="group flex flex-1 items-center gap-2.5 rounded-md px-2 py-2 text-left transition-colors hover:bg-accent"
-                            aria-label={`Toggle ${title}`}
+                            aria-label={t('workflow.folders.folderSection.toggleFolder', { title })}
                         >
                             <ChevronRight
                                 size={16}
@@ -167,7 +169,7 @@ export function FolderSection({
                                     variant="ghost"
                                     size="icon"
                                     className="h-8 w-8 text-muted-foreground"
-                                    aria-label="Folder actions"
+                                    aria-label={t('workflow.folders.folderSection.folderActions')}
                                 >
                                     <MoreVertical size={16} />
                                 </Button>
@@ -175,14 +177,14 @@ export function FolderSection({
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={() => setIsRenaming(true)}>
                                     <Pencil size={14} className="mr-2" />
-                                    Rename
+                                    {t('workflow.folders.folderSection.rename')}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     onClick={() => setConfirmDelete(true)}
                                     className="text-destructive focus:text-destructive"
                                 >
                                     <Trash2 size={14} className="mr-2" />
-                                    Delete
+                                    {t('workflow.folders.folderSection.delete')}
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -202,10 +204,10 @@ export function FolderSection({
                         ) : (
                             <div className="rounded-lg border border-dashed bg-muted/30 p-6 text-center text-sm text-muted-foreground">
                                 {isArchived
-                                    ? 'No archived agents.'
+                                    ? t('workflow.folders.folderSection.noArchived')
                                     : isFolder
-                                      ? 'This folder is empty. Use “Move to folder” on an agent to add it here.'
-                                      : 'No uncategorized agents.'}
+                                      ? t('workflow.folders.folderSection.folderEmpty')
+                                      : t('workflow.folders.folderSection.noUncategorized')}
                             </div>
                         )}
                     </div>
@@ -217,23 +219,22 @@ export function FolderSection({
                     <FolderFormDialog
                         open={isRenaming}
                         onOpenChange={setIsRenaming}
-                        title="Rename folder"
+                        title={t('workflow.folders.folderSection.renameFolder')}
                         initialName={folder.name}
-                        submitLabel="Rename"
+                        submitLabel={t('workflow.folders.folderSection.rename')}
                         onSubmit={handleRename}
                     />
                     <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
                         <AlertDialogContent>
                             <AlertDialogHeader>
-                                <AlertDialogTitle>Delete “{folder.name}”?</AlertDialogTitle>
+                                <AlertDialogTitle>{t('workflow.folders.folderSection.deleteConfirmTitle', { name: folder.name })}</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                    The {count} agent{count === 1 ? '' : 's'} in this folder
-                                    won’t be deleted - they’ll move to Uncategorized.
+                                    {t('workflow.folders.folderSection.deleteConfirmDescription', { count })}
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                                 <AlertDialogCancel disabled={isDeleting}>
-                                    Cancel
+                                    {t('workflow.folders.folderSection.cancel')}
                                 </AlertDialogCancel>
                                 <AlertDialogAction
                                     onClick={(e) => {
@@ -243,7 +244,7 @@ export function FolderSection({
                                     disabled={isDeleting}
                                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 >
-                                    {isDeleting ? 'Deleting...' : 'Delete folder'}
+                                    {isDeleting ? t('workflow.folders.folderSection.deleting') : t('workflow.folders.folderSection.deleteFolder')}
                                 </AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>

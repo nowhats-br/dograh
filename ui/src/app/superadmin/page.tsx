@@ -9,11 +9,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from '@/lib/auth';
+import { useTranslation } from '@/lib/i18n/LocaleContext';
 import { impersonateAsSuperadmin } from "@/lib/utils";
 
 type ImpersonationTarget = "provider" | "email";
 
 export default function SuperadminPage() {
+    const { t } = useTranslation();
     const [providerUserId, setProviderUserId] = useState("");
     const [email, setEmail] = useState("");
     const [error, setError] = useState<{ target: ImpersonationTarget; message: string } | null>(null);
@@ -27,7 +29,7 @@ export default function SuperadminPage() {
         if (!trimmedValue) {
             setError({
                 target,
-                message: target === "provider" ? "Enter a provider user ID." : "Enter an email address.",
+                message: target === "provider" ? t('superadmin.enterProviderId') : t('superadmin.enterEmail'),
             });
             return;
         }
@@ -38,7 +40,7 @@ export default function SuperadminPage() {
             if (!user) {
                 setError({
                     target,
-                    message: "User not authenticated. Please log in and try again.",
+                    message: t('superadmin.notAuthenticated'),
                 });
                 return;
             }
@@ -59,7 +61,7 @@ export default function SuperadminPage() {
         } catch (err) {
             setError({
                 target,
-                message: err instanceof Error ? err.message : "Failed to impersonate user. Please try again.",
+                message: err instanceof Error ? err.message : t('superadmin.failedToImpersonate'),
             });
             console.error("Impersonation error:", err);
         } finally {
@@ -81,27 +83,27 @@ export default function SuperadminPage() {
         <>
             <main className="container mx-auto p-6 space-y-6 max-w-5xl">
                 <div className="text-center">
-                    <h1 className="text-3xl font-bold mb-2">Superadmin Dashboard</h1>
-                    <p className="text-sm text-muted-foreground">Manage users and view system-wide data</p>
+                    <h1 className="text-3xl font-bold mb-2">{t('superadmin.title')}</h1>
+                    <p className="text-sm text-muted-foreground">{t('superadmin.description')}</p>
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Provider User ID</CardTitle>
+                                <CardTitle>{t('superadmin.providerUserId')}</CardTitle>
                                 <CardDescription>
-                                    Impersonate with the Stack provider user ID
+                                    {t('superadmin.providerUserIdDescription')}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <form onSubmit={handleProviderImpersonate} className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="providerUserId">Provider User ID</Label>
+                                        <Label htmlFor="providerUserId">{t('superadmin.providerUserId')}</Label>
                                         <Input
                                             id="providerUserId"
                                             value={providerUserId}
                                             onChange={(e) => setProviderUserId(e.target.value)}
-                                            placeholder="Provider user ID"
+                                            placeholder={t('superadmin.providerUserIdPlaceholder')}
                                             required
                                         />
                                     </div>
@@ -120,10 +122,10 @@ export default function SuperadminPage() {
                                         {loadingTarget === "provider" ? (
                                             <>
                                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                Processing...
+                                                {t('superadmin.processing')}
                                             </>
                                         ) : (
-                                            'Impersonate by Provider ID'
+                                            t('superadmin.impersonateByProviderId')
                                         )}
                                     </Button>
                                 </form>
@@ -132,21 +134,21 @@ export default function SuperadminPage() {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Email</CardTitle>
+                                <CardTitle>{t('superadmin.email')}</CardTitle>
                                 <CardDescription>
-                                    Impersonate with a primary email address
+                                    {t('superadmin.emailDescription')}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <form onSubmit={handleEmailImpersonate} className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="email">Email Address</Label>
+                                        <Label htmlFor="email">{t('superadmin.emailAddress')}</Label>
                                         <Input
                                             id="email"
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
-                                            placeholder="user@example.com"
+                                            placeholder={t('superadmin.emailPlaceholder')}
                                             required
                                         />
                                     </div>
@@ -165,10 +167,10 @@ export default function SuperadminPage() {
                                         {loadingTarget === "email" ? (
                                             <>
                                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                Processing...
+                                                {t('superadmin.processing')}
                                             </>
                                         ) : (
-                                            'Impersonate by Email'
+                                            t('superadmin.impersonateByEmail')
                                         )}
                                     </Button>
                                 </form>
@@ -177,16 +179,16 @@ export default function SuperadminPage() {
 
                         <Card className="md:col-span-2">
                             <CardHeader>
-                                <CardTitle>Workflow Runs</CardTitle>
+                                <CardTitle>{t('superadmin.workflowRuns')}</CardTitle>
                                 <CardDescription>
-                                    View and manage all workflow runs across organizations
+                                    {t('superadmin.workflowRunsDescription')}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <Link href="/superadmin/runs">
                                     <Button className="w-full md:w-auto">
                                         <List className="mr-2 h-4 w-4" />
-                                        View All Runs
+                                        {t('superadmin.viewAllRuns')}
                                         <ArrowRight className="ml-2 h-4 w-4" />
                                     </Button>
                                 </Link>

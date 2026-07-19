@@ -59,6 +59,7 @@ import { useTelephonyConfigWarnings } from "@/context/TelephonyConfigWarningsCon
 import { useLatestReleaseVersion } from "@/hooks/useLatestReleaseVersion";
 import type { LocalUser } from "@/lib/auth";
 import { useAuth } from "@/lib/auth";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 import { cn } from "@/lib/utils";
 
 type SidebarNavItem = {
@@ -73,79 +74,77 @@ type SidebarNavSection = {
   items: SidebarNavItem[];
 };
 
-const TELEPHONY_WARNING_COPY = "Action required";
-
 const NAV_SECTIONS: SidebarNavSection[] = [
   {
     items: [
       {
-        title: "Overview",
+        title: "navigation.overview",
         url: "/overview",
         icon: Home,
       },
     ],
   },
   {
-    label: "BUILD",
+    label: "navigation.build",
     items: [
       {
-        title: "Voice Agents",
+        title: "navigation.voiceAgents",
         url: "/workflow",
         icon: Workflow,
       },
       {
-        title: "Campaigns",
+        title: "navigation.campaigns",
         url: "/campaigns",
         icon: Megaphone,
       },
       {
-        title: "Models",
+        title: "navigation.models",
         url: "/model-configurations",
         icon: Brain,
       },
       {
-        title: "Telephony",
+        title: "navigation.telephony",
         url: "/telephony-configurations",
         icon: Phone,
         showsTelephonyWarning: true,
       },
       {
-        title: "Tools",
+        title: "navigation.tools",
         url: "/tools",
         icon: Wrench,
       },
       {
-        title: "Files",
+        title: "navigation.files",
         url: "/files",
         icon: Database,
       },
       {
-        title: "Recordings",
+        title: "navigation.recordings",
         url: "/recordings",
         icon: AudioLines,
       },
       {
-        title: "Developers",
+        title: "navigation.developers",
         url: "/api-keys",
         icon: Key,
       },
     ],
   },
   {
-    label: "MANAGE",
+    label: "navigation.manage",
     items: [
       {
-        title: "Agent Runs",
+        title: "navigation.agentRuns",
         url: "/usage",
         icon: TrendingUp,
       },
       {
-        title: "Billing",
+        title: "navigation.billing",
         url: "/billing",
         icon: CircleDollarSign,
       },
       {
-        title: "Reports",
+        title: "navigation.reports",
         url: "/reports",
         icon: FileText,
       }
@@ -154,6 +153,7 @@ const NAV_SECTIONS: SidebarNavSection[] = [
 ];
 
 export function AppSidebar() {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
   const { state, isMobile, setOpenMobile } = useSidebar();
@@ -193,16 +193,16 @@ export function AppSidebar() {
     const tooltip = {
       children: (
         <div className="notranslate" translate="no">
-          <p>{item.title}</p>
+          <p>{t(item.title)}</p>
           {showWarningDot && (
-            <p className="text-amber-600 dark:text-amber-400">{TELEPHONY_WARNING_COPY}</p>
+            <p className="text-amber-600 dark:text-amber-400">{t('navigation.actionRequired')}</p>
           )}
         </div>
       ),
     };
     const warningIndicator = (
       <AlertTriangle
-        aria-label="Action required on a telephony configuration"
+        aria-label={t('navigation.actionRequiredAria')}
         className={cn(
           "text-amber-500",
           isCollapsed ? "absolute -right-0.5 -top-0.5 h-3 w-3" : "ml-auto h-3.5 w-3.5"
@@ -242,7 +242,7 @@ export function AppSidebar() {
             className={cn("notranslate min-w-0 flex-1 truncate", isCollapsed && "sr-only")}
             translate="no"
           >
-            {item.title}
+            {t(item.title)}
           </span>
           {showWarningDot && (
             isCollapsed ? (
@@ -253,7 +253,7 @@ export function AppSidebar() {
                   {warningIndicator}
                 </TooltipTrigger>
                 <TooltipContent side="right">
-                  <p>{TELEPHONY_WARNING_COPY}</p>
+                  <p>{t('navigation.actionRequired')}</p>
                 </TooltipContent>
               </Tooltip>
             )
@@ -297,13 +297,13 @@ export function AppSidebar() {
           size="icon"
           className="h-7 w-7 rounded-full"
           onClick={() => openHireExpert("sidebar")}
-          aria-label="Hire an Expert"
+          aria-label={t('navigation.hireExpert')}
         >
           <UserRound className="h-3.5 w-3.5" />
         </Button>
       </TooltipTrigger>
       <TooltipContent side="right">
-        <p>Hire an Expert</p>
+        <p>{t('navigation.hireExpert')}</p>
       </TooltipContent>
     </Tooltip>
   ) : (
@@ -313,7 +313,7 @@ export function AppSidebar() {
       onClick={() => openHireExpert("sidebar")}
     >
       <UserRound className="h-3.5 w-3.5" />
-      Hire an Expert
+      {t('navigation.hireExpert')}
     </Button>
   );
 
@@ -347,11 +347,11 @@ export function AppSidebar() {
                     className="inline-flex items-center gap-1 rounded-md border bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium leading-none text-amber-900 transition-opacity hover:opacity-80 dark:bg-amber-950 dark:text-amber-200"
                   >
                     <ArrowUpCircle className="h-3 w-3" />
-                    Update
+                    {t('navigation.update')}
                   </a>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
-                  <p>Latest: {latestRelease} - click to see the update guide</p>
+                  <p>{t('navigation.latestRelease')}: {latestRelease} - {t('navigation.clickForUpdateGuide')}</p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -359,11 +359,11 @@ export function AppSidebar() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span className="inline-flex items-center rounded-md border bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium leading-none text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">
-                    Latest
+                    {t('navigation.latest')}
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
-                  <p>You&apos;re running the latest release</p>
+                  <p>{t('navigation.youAreLatest')}</p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -399,7 +399,7 @@ export function AppSidebar() {
                 )}
                 translate="no"
               >
-                {section.label}
+                {t(section.label!)}
               </SidebarGroupLabel>
             )}
             <SidebarMenu>
@@ -440,11 +440,11 @@ export function AppSidebar() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => router.push("/settings")} className="cursor-pointer">
                     <Settings className="mr-2 h-4 w-4" />
-                    Platform Settings
+                    {t('navigation.platformSettings')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => logout()} className="cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
-                    Sign out
+                    {t('navigation.signOut')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -477,15 +477,15 @@ export function AppSidebar() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => router.push("/handler/account-settings")} className="cursor-pointer">
                     <Settings className="mr-2 h-4 w-4" />
-                    Account settings
+                    {t('navigation.accountSettings')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => router.push("/settings")} className="cursor-pointer">
                     <Settings className="mr-2 h-4 w-4" />
-                    Platform Settings
+                    {t('navigation.platformSettings')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => logout()} className="cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
-                    Sign out
+                    {t('navigation.signOut')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -504,7 +504,7 @@ export function AppSidebar() {
                 </div>
               </TooltipTrigger>
               <TooltipContent side={isCollapsed ? "right" : "top"}>
-                <p>Toggle theme</p>
+                <p>{t('navigation.toggleTheme')}</p>
               </TooltipContent>
             </Tooltip>
           </div>

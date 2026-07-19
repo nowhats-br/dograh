@@ -9,22 +9,23 @@ import { createFolderApiV1FolderPost } from '@/client/sdk.gen';
 import { Button } from '@/components/ui/button';
 
 import { FolderFormDialog } from './FolderFormDialog';
+import { useTranslation } from '@/lib/i18n/LocaleContext';
 
 export function CreateFolderButton() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
 
     const handleCreate = async (name: string) => {
         const response = await createFolderApiV1FolderPost({ body: { name } });
         if (response.error) {
-            // 409 = duplicate name; surface the server's message when present.
             const detail =
                 (response.error as { detail?: string })?.detail ??
-                'Failed to create folder';
+                t('workflow.folders.createFolderButton.failedToCreate');
             toast.error(detail);
             throw new Error(detail);
         }
-        toast.success(`Folder "${name}" created`);
+        toast.success(t('workflow.folders.createFolderButton.folderCreated', { name }));
         router.refresh();
     };
 
@@ -32,13 +33,13 @@ export function CreateFolderButton() {
         <>
             <Button variant="outline" onClick={() => setIsOpen(true)}>
                 <FolderPlus className="w-4 h-4 mr-2" />
-                New Folder
+                {t('workflow.folders.createFolderButton.newFolder')}
             </Button>
             <FolderFormDialog
                 open={isOpen}
                 onOpenChange={setIsOpen}
-                title="Create folder"
-                submitLabel="Create"
+                title={t('workflow.folders.createFolderButton.createFolder')}
+                submitLabel={t('workflow.folders.createFolderButton.create')}
                 onSubmit={handleCreate}
             />
         </>

@@ -32,6 +32,7 @@ import { LANGUAGE_DISPLAY_NAMES } from "@/constants/languages";
 import { PostHogEvent } from "@/constants/posthog-events";
 import { useUserConfig } from "@/context/UserConfigContext";
 import { useAudioPlayback } from "@/hooks/useAudioPlayback";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 
 interface RecordingsDialogProps {
     open: boolean;
@@ -65,6 +66,7 @@ export const RecordingsDialog = ({
     onRecordingsChange,
     ttsOverrides,
 }: RecordingsDialogProps) => {
+    const { t } = useTranslation();
     const { userConfig } = useUserConfig();
     const [recordings, setRecordings] = useState<RecordingResponseSchema[]>([]);
     const [loading, setLoading] = useState(false);
@@ -101,7 +103,7 @@ export const RecordingsDialog = ({
             setRecordings(recs);
             onRecordingsChange?.(recs);
         } catch {
-            setError("Failed to load recordings");
+            setError(t("workflow.recordings.loadFailed"));
         } finally {
             setLoading(false);
         }
@@ -170,7 +172,7 @@ export const RecordingsDialog = ({
             setPendingFiles((prev) =>
                 prev.map((p) =>
                     p.id === pendingId
-                        ? { ...p, isTranscribing: false, error: "Auto-transcription failed" }
+                        ? { ...p, isTranscribing: false, error: t("workflow.recordings.autoTranscribeFailed") }
                         : p
                 )
             );
@@ -181,7 +183,7 @@ export const RecordingsDialog = ({
         const valid: PendingFile[] = [];
         for (const file of files) {
             if (file.size > MAX_FILE_SIZE) {
-                setError(`${file.name} (${(file.size / (1024 * 1024)).toFixed(1)}MB) exceeds 5MB limit - skipped.`);
+                setError(t("workflow.recordings.fileTooLarge", { name: file.name, size: (file.size / (1024 * 1024)).toFixed(1) }));
                 continue;
             }
             const id = `pending-${++pendingFileCounter}`;
@@ -223,7 +225,7 @@ export const RecordingsDialog = ({
 
                 const blob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType });
                 if (blob.size > MAX_FILE_SIZE) {
-                    setError(`Recording (${(blob.size / (1024 * 1024)).toFixed(1)}MB) exceeds the maximum allowed size of 5MB.`);
+                    setError(t("workflow.recordings.recordingTooLarge", { size: (blob.size / (1024 * 1024)).toFixed(1) }));
                     resetRecordingState();
                     return;
                 }
@@ -241,7 +243,7 @@ export const RecordingsDialog = ({
                 setRecordingDuration((d) => d + 1);
             }, 1000);
         } catch {
-            setError("Microphone access denied. Please allow microphone permissions.");
+            setError(t("workflow.recordings.micDenied"));
             resetRecordingState();
         }
     };
@@ -260,9 +262,7 @@ export const RecordingsDialog = ({
         const ready = pendingFiles.filter((p) => p.transcript.trim() && !p.isTranscribing);
         if (ready.length === 0) return;
         if (!ttsProvider || !ttsModel || !ttsVoiceId) {
-            setError(
-                "TTS configuration (provider, model, voice) must be set in your user configuration before uploading."
-            );
+            setError(t("workflow.recordings.ttsConfigRequired"));
             return;
         }
 
@@ -333,7 +333,7 @@ export const RecordingsDialog = ({
             await fetchRecordings();
         } catch (err) {
             setError(
-                err instanceof Error ? err.message : "Failed to upload recordings"
+                err instanceof Error ? err.message : t("workflow.recordings.uploadFailed")
             );
         } finally {
             setUploading(false);
@@ -347,7 +347,7 @@ export const RecordingsDialog = ({
             });
             await fetchRecordings();
         } catch {
-            setError("Failed to delete recording");
+            setError(t("workflow.recordings.deleteFailed"));
         }
     };
 
@@ -359,7 +359,7 @@ export const RecordingsDialog = ({
                 source: 'recordings_dialog',
             });
         } catch {
-            setError("Failed to play recording");
+            setError(t("workflow.recordings.playFailed"));
         }
     };
 
@@ -372,35 +372,32 @@ export const RecordingsDialog = ({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Workflow Recordings</DialogTitle>
+                    <DialogTitle>{t("workflow.recordings.title")}</DialogTitle>
                     <DialogDescription>
-                        Upload or record audio for hybrid prompts. Recordings are
-                        scoped to your current TTS configuration. Use{" "}
-                        <code className="text-xs bg-muted px-1 rounded">@</code> in
-                        prompt fields to insert them.
+                        {t("workflow.recordings.description")}
                     </DialogDescription>
                 </DialogHeader>
 
                 {/* Current TTS Config */}
                 <div className="rounded-md border p-3 bg-muted/30 text-sm space-y-1">
                     <div className="font-medium text-xs text-muted-foreground uppercase tracking-wide">
-                        Current TTS Configuration
+                        {t("workflow.recordings.currentTtsConfig")}
                     </div>
                     {ttsProvider ? (
                         <div className="flex flex-wrap gap-2 text-xs">
                             <span className="bg-background px-2 py-0.5 rounded border">
-                                Provider: {ttsProvider}
+                                {t("workflow.recordings.providerLabel")}: {ttsProvider}
                             </span>
                             <span className="bg-background px-2 py-0.5 rounded border">
-                                Model: {ttsModel}
+                                {t("workflow.recordings.modelLabel")}: {ttsModel}
                             </span>
                             <span className="bg-background px-2 py-0.5 rounded border truncate max-w-[200px]">
-                                VoiceID: {ttsVoiceId}
+                                {t("workflow.recordings.voiceIdLabel")}: {ttsVoiceId}
                             </span>
                         </div>
                     ) : (
                         <p className="text-xs text-destructive">
-                            No TTS configuration found. Set it in Model Configurations.
+                            {t("workflow.recordings.noTtsConfig")}
                         </p>
                     )}
                 </div>
@@ -413,12 +410,12 @@ export const RecordingsDialog = ({
 
                 {/* Upload Section */}
                 <div className="space-y-3 border rounded-md p-3">
-                    <Label className="text-sm font-medium">Add New Recordings</Label>
+                    <Label className="text-sm font-medium">{t("workflow.recordings.addNewRecordings")}</Label>
 
                     {/* Audio source: file picker or record */}
                     <div>
                         <Label className="text-xs text-muted-foreground">
-                            Audio Files
+                            {t("workflow.recordings.audioFiles")}
                         </Label>
                         <div className="flex gap-2">
                             <input
@@ -438,7 +435,7 @@ export const RecordingsDialog = ({
                                 disabled={isBusy}
                             >
                                 <Upload className="w-4 h-4 mr-2 shrink-0" />
-                                <span className="text-muted-foreground">Choose audio files (max 5MB each)</span>
+                                <span className="text-muted-foreground">{t("workflow.recordings.chooseFiles")}</span>
                             </Button>
                             {recordingStep === "idle" && (
                                 <Button
@@ -449,7 +446,7 @@ export const RecordingsDialog = ({
                                     disabled={uploading || anyTranscribing}
                                 >
                                     <Mic className="w-4 h-4 mr-1" />
-                                    Record
+                                    {t("workflow.recordings.record")}
                                 </Button>
                             )}
                         </div>
@@ -462,10 +459,10 @@ export const RecordingsDialog = ({
                                 <>
                                     <div>
                                         <Label className="text-xs text-muted-foreground">
-                                            Recording Name
+                                            {t("workflow.recordings.recordingName")}
                                         </Label>
                                         <Input
-                                            placeholder="e.g. greeting, hold-message"
+                                            placeholder={t("workflow.recordings.recordingNamePlaceholder")}
                                             value={recordingFilename}
                                             onChange={(e) => setRecordingFilename(e.target.value)}
                                             autoFocus
@@ -478,14 +475,14 @@ export const RecordingsDialog = ({
                                             disabled={!recordingFilename.trim()}
                                         >
                                             <Mic className="w-4 h-4 mr-1" />
-                                            Start Recording
+                                            {t("workflow.recordings.startRecording")}
                                         </Button>
                                         <Button
                                             size="sm"
                                             variant="ghost"
                                             onClick={resetRecordingState}
                                         >
-                                            Cancel
+                                            {t("common.cancel")}
                                         </Button>
                                     </div>
                                 </>
@@ -507,7 +504,7 @@ export const RecordingsDialog = ({
                                         className="ml-auto"
                                     >
                                         <Square className="w-4 h-4 mr-1" />
-                                        Stop
+                                        {t("workflow.recordings.stop")}
                                     </Button>
                                 </div>
                             )}
@@ -518,7 +515,7 @@ export const RecordingsDialog = ({
                     {pendingFiles.length > 0 && (
                         <div className="space-y-2">
                             <Label className="text-xs text-muted-foreground">
-                                Pending ({pendingFiles.length} file{pendingFiles.length !== 1 ? "s" : ""})
+                                {t("workflow.recordings.pending", { count: pendingFiles.length })}
                             </Label>
                             {pendingFiles.map((pf) => (
                                 <div key={pf.id} className="rounded-md border p-2 space-y-1.5 bg-muted/10">
@@ -543,7 +540,7 @@ export const RecordingsDialog = ({
                                         <p className="text-xs text-destructive">{pf.error}</p>
                                     )}
                                     <Textarea
-                                        placeholder={pf.isTranscribing ? "Transcribing..." : "What does this recording say?"}
+                                        placeholder={pf.isTranscribing ? t("workflow.recordings.transcribing") : t("workflow.recordings.transcriptPlaceholder")}
                                         value={pf.transcript}
                                         onChange={(e) => updateTranscript(pf.id, e.target.value)}
                                         disabled={pf.isTranscribing}
@@ -558,7 +555,7 @@ export const RecordingsDialog = ({
                     {/* Language */}
                     <div>
                         <Label className="text-xs text-muted-foreground">
-                            Language
+                            {t("workflow.recordings.language")}
                         </Label>
                         <Select value={language} onValueChange={setLanguage}>
                             <SelectTrigger className="h-9 text-sm">
@@ -585,15 +582,15 @@ export const RecordingsDialog = ({
                             <Upload className="w-4 h-4 mr-1" />
                         )}
                         {uploading
-                            ? "Uploading..."
-                            : `Upload ${readyCount} Recording${readyCount !== 1 ? "s" : ""}`}
+                            ? t("workflow.recordings.uploading")
+                            : t("workflow.recordings.uploadButton", { count: readyCount })}
                     </Button>
                 </div>
 
                 {/* Recordings List */}
                 <div className="space-y-2">
                     <Label className="text-sm font-medium">
-                        Recordings{" "}
+                        {t("workflow.recordings.recordingsList")}{" "}
                         {!loading && (
                             <span className="text-muted-foreground font-normal">
                                 ({recordings.length})
@@ -606,7 +603,7 @@ export const RecordingsDialog = ({
                         </div>
                     ) : recordings.length === 0 ? (
                         <p className="text-sm text-muted-foreground py-2">
-                            No recordings yet for this TTS configuration.
+                            {t("workflow.recordings.noRecordings")}
                         </p>
                     ) : (
                         recordings.map((rec) => (

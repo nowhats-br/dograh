@@ -10,6 +10,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 
 /* NODE HEADER -------------------------------------------------------------- */
 
@@ -176,6 +177,7 @@ NodeHeaderMenuAction.displayName = "NodeHeaderMenuAction";
 /* NODE HEADER DELETE ACTION --------------------------------------- */
 
 export const NodeHeaderDeleteAction = () => {
+    const { t } = useTranslation();
     const id = useNodeId();
     const { setNodes } = useReactFlow();
 
@@ -184,7 +186,7 @@ export const NodeHeaderDeleteAction = () => {
     }, [id, setNodes]);
 
     return (
-        <NodeHeaderAction onClick={handleClick} label="Delete node">
+        <NodeHeaderAction onClick={handleClick} label={t('flow.nodeHeader.deleteNode')}>
             <Trash />
         </NodeHeaderAction>
     );

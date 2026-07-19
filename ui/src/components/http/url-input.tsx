@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 
 import { Input } from "@/components/ui/input";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 import { cn } from "@/lib/utils";
 
 // URL regex pattern that validates:
@@ -19,17 +20,17 @@ export interface UrlValidationResult {
     error?: string;
 }
 
-export function validateUrl(url: string): UrlValidationResult {
+export function validateUrl(url: string, t?: (key: string) => string): UrlValidationResult {
     const trimmedUrl = url.trim();
 
     if (!trimmedUrl) {
-        return { valid: false, error: "URL is required" };
+        return { valid: false, error: t ? t("http.urlInput.urlRequired") : "URL is required" };
     }
 
     if (!URL_REGEX.test(trimmedUrl)) {
         return {
             valid: false,
-            error: "Invalid URL format. Must start with http:// or https://",
+            error: t ? t("http.urlInput.invalidFormat") : "Invalid URL format. Must start with http:// or https://",
         };
     }
 
@@ -51,13 +52,15 @@ interface UrlInputProps {
 export function UrlInput({
     value,
     onChange,
-    placeholder = "https://api.example.com/endpoint",
+    placeholder,
     disabled = false,
     className,
     showValidation = false,
     onValidationChange,
 }: UrlInputProps) {
+    const { t } = useTranslation();
     const [touched, setTouched] = useState(false);
+    const resolvedPlaceholder = placeholder ?? t("http.urlInput.placeholder");
 
     const handleChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,7 +68,7 @@ export function UrlInput({
             onChange(newValue);
 
             if (onValidationChange && (touched || newValue)) {
-                onValidationChange(validateUrl(newValue));
+                onValidationChange(validateUrl(newValue, t));
             }
         },
         [onChange, onValidationChange, touched]
@@ -78,11 +81,11 @@ export function UrlInput({
             onChange(trimmedValue);
         }
         if (onValidationChange && trimmedValue) {
-            onValidationChange(validateUrl(trimmedValue));
+            onValidationChange(validateUrl(trimmedValue, t));
         }
-    }, [onChange, onValidationChange, value]);
+    }, [onChange, onValidationChange, value, t]);
 
-    const validation = validateUrl(value);
+    const validation = validateUrl(value, t);
     const showError = showValidation && touched && !validation.valid && value;
 
     return (
@@ -91,7 +94,7 @@ export function UrlInput({
                 value={value}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                placeholder={placeholder}
+                placeholder={resolvedPlaceholder}
                 disabled={disabled}
                 className={cn(
                     showError && "border-destructive focus-visible:ring-destructive",

@@ -12,6 +12,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 
 import {
     moveWorkflowToFolderApiV1WorkflowWorkflowIdFolderPut,
@@ -64,6 +65,7 @@ export function WorkflowTable({
     currentFolderId = null,
 }: WorkflowTableProps) {
     const router = useRouter();
+    const { t } = useTranslation();
     const [isPending, startTransition] = useTransition();
     const [loadingWorkflowId, setLoadingWorkflowId] = useState<number | null>(null);
     const [movingWorkflowId, setMovingWorkflowId] = useState<number | null>(null);
@@ -89,14 +91,14 @@ export function WorkflowTable({
             });
 
             if (response.data) {
-                toast.success(`Workflow ${action.toLowerCase()}d successfully`);
+                toast.success(currentStatus === 'active' ? t('workflow.table.archivedSuccess') : t('workflow.table.restoredSuccess'));
                 startTransition(() => {
                     router.refresh();
                 });
             }
         } catch (error) {
             console.error(`Error ${action.toLowerCase()}ing workflow:`, error);
-            toast.error(`Failed to ${action.toLowerCase()} workflow`);
+            toast.error(currentStatus === 'active' ? t('workflow.table.archiveError') : t('workflow.table.restoreError'));
         } finally {
             setLoadingWorkflowId(null);
         }
@@ -110,17 +112,17 @@ export function WorkflowTable({
                 body: { folder_id: folderId },
             });
             if (response.error) {
-                throw new Error('Failed to move agent');
+                throw new Error(t('workflow.table.moveError'));
             }
             toast.success(
-                folderId === null ? 'Moved to Uncategorized' : 'Agent moved',
+                folderId === null ? t('workflow.table.movedToUncategorized') : t('workflow.table.movedToFolder'),
             );
             startTransition(() => {
                 router.refresh();
             });
         } catch (error) {
             console.error('Error moving workflow:', error);
-            toast.error('Failed to move agent');
+            toast.error(t('workflow.table.moveError'));
         } finally {
             setMovingWorkflowId(null);
         }
@@ -132,11 +134,11 @@ export function WorkflowTable({
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="font-semibold">ID</TableHead>
-                            <TableHead className="font-semibold">Agent Name</TableHead>
-                            <TableHead className="font-semibold">Created At</TableHead>
-                            <TableHead className="font-semibold text-center">Total Runs</TableHead>
-                            <TableHead className="font-semibold text-right">Actions</TableHead>
+                            <TableHead className="font-semibold">{t('workflow.table.id')}</TableHead>
+                            <TableHead className="font-semibold">{t('workflow.table.agentName')}</TableHead>
+                            <TableHead className="font-semibold">{t('workflow.table.createdAt')}</TableHead>
+                            <TableHead className="font-semibold text-center">{t('workflow.table.totalRuns')}</TableHead>
+                            <TableHead className="font-semibold text-right">{t('workflow.table.actions')}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -172,7 +174,7 @@ export function WorkflowTable({
                                             className="flex items-center gap-2"
                                         >
                                             <Pencil size={16} />
-                                            Edit
+                                            {t('workflow.table.edit')}
                                         </Button>
                                         {folders && (
                                             <DropdownMenu>
@@ -188,18 +190,18 @@ export function WorkflowTable({
                                                         ) : (
                                                             <FolderInput size={16} />
                                                         )}
-                                                        Move
+                                                        {t('workflow.table.move')}
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="w-52">
-                                                    <DropdownMenuLabel>Move to folder</DropdownMenuLabel>
+                                                    <DropdownMenuLabel>{t('workflow.table.moveToFolder')}</DropdownMenuLabel>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem
                                                         disabled={currentFolderId === null}
                                                         onClick={() => handleMove(workflow.id, null)}
                                                     >
                                                         <Inbox size={14} className="mr-2" />
-                                                        Uncategorized
+                                                        {t('workflow.table.uncategorized')}
                                                         {currentFolderId === null && (
                                                             <Check size={14} className="ml-auto" />
                                                         )}
@@ -230,19 +232,19 @@ export function WorkflowTable({
                                             {loadingWorkflowId === workflow.id ? (
                                                 <>
                                                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                                                    {showArchived ? 'Restoring...' : 'Archiving...'}
+                                                    {showArchived ? t('workflow.table.restoring') : t('workflow.table.archiving')}
                                                 </>
                                             ) : (
                                                 <>
                                                     {showArchived ? (
                                                         <>
                                                             <RotateCcw size={16} />
-                                                            Restore
+                                                            {t('workflow.table.restore')}
                                                         </>
                                                     ) : (
                                                         <>
                                                             <Archive size={16} />
-                                                            Archive
+                                                            {t('workflow.table.archive')}
                                                         </>
                                                     )}
                                                 </>

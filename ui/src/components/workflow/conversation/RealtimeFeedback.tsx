@@ -12,6 +12,7 @@ import type {
     WorkflowRunLogs,
 } from "./types";
 import { countConversationMessages } from "./utils";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 
 interface LiveModeProps {
     mode: "live";
@@ -28,6 +29,7 @@ interface HistoricalModeProps {
 type RealtimeFeedbackProps = LiveModeProps | HistoricalModeProps;
 
 export function RealtimeFeedback(props: RealtimeFeedbackProps) {
+    const { t } = useTranslation();
     let items;
     let status: ConversationStatus;
     let title: string;
@@ -39,20 +41,20 @@ export function RealtimeFeedback(props: RealtimeFeedbackProps) {
             ? conversationItemsFromRealtimeFeedbackEvents(props.logs.realtime_feedback_events)
             : [];
         status = "ended";
-        title = "Call Transcript";
+        title = t('workflow.conversation.realtimeFeedback.callTranscript');
         emptyState = {
-            title: "No conversation recorded",
-            subtitle: "Real-time feedback events were not captured for this call",
+            title: t('workflow.conversation.realtimeFeedback.noConversation'),
+            subtitle: t('workflow.conversation.realtimeFeedback.noConversationSubtitle'),
         };
     } else {
         items = conversationItemsFromLiveFeedback(props.messages);
         status = props.isCallActive ? "live" : props.isCallCompleted ? "ended" : "ready";
-        title = "Live Transcript";
+        title = t('workflow.conversation.realtimeFeedback.liveTranscript');
         emptyState = {
-            title: "No messages yet",
+            title: t('workflow.conversation.realtimeFeedback.noMessages'),
             subtitle: props.isCallActive
-                ? "Start speaking to see the transcript"
-                : "Start the call to begin the conversation",
+                ? t('workflow.conversation.realtimeFeedback.noMessagesActive')
+                : t('workflow.conversation.realtimeFeedback.noMessagesReady'),
         };
         autoScroll = true;
     }

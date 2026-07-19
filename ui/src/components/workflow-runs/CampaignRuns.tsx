@@ -7,6 +7,7 @@ import { getCampaignRunsApiV1CampaignCampaignIdRunsGet, getWorkflowApiV1Workflow
 import { WorkflowRunResponseSchema } from "@/client/types.gen";
 import { WorkflowRunsTable } from "@/components/workflow-runs";
 import { useAuth } from "@/lib/auth";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 import { decodeFiltersFromURL, encodeFiltersToURL } from "@/lib/filters";
 import { ActiveFilter, availableAttributes, FilterAttribute } from "@/types/filters";
 
@@ -17,6 +18,7 @@ interface CampaignRunsProps {
 }
 
 export function CampaignRuns({ campaignId, workflowId, searchParams }: CampaignRunsProps) {
+    const { t } = useTranslation();
     const router = useRouter();
     const { isAuthenticated } = useAuth();
     const [runs, setRuns] = useState<WorkflowRunResponseSchema[]>([]);
@@ -116,7 +118,7 @@ export function CampaignRuns({ campaignId, workflowId, searchParams }: CampaignR
             });
 
             if (response.error) {
-                throw new Error("Failed to fetch campaign runs");
+                throw new Error(t("campaigns.runs.fetchFailed"));
             }
 
             if (response.data) {
@@ -129,7 +131,7 @@ export function CampaignRuns({ campaignId, workflowId, searchParams }: CampaignR
             setError(null);
         } catch (err) {
             console.error("Error fetching campaign runs:", err);
-            setError("Failed to load campaign runs");
+            setError(t("campaigns.runs.loadFailed"));
         } finally {
             setLoading(false);
         }
@@ -236,8 +238,8 @@ export function CampaignRuns({ campaignId, workflowId, searchParams }: CampaignR
             onSort={handleSort}
             workflowId={workflowId}
             onReload={handleReload}
-            title="Campaign Workflow Runs"
-            emptyMessage="No workflow runs found for this campaign"
+            title={t("campaigns.runs.title")}
+            emptyMessage={t("campaigns.runs.empty")}
         />
     );
 }

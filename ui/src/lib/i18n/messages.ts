@@ -11,15 +11,22 @@ export async function loadMessages(locale: string): Promise<Messages> {
   return cache[locale];
 }
 
-export function t(key: string, messages: Messages, fallback = key): string {
+export function t(key: string, messages: Messages, params?: Record<string, string | number>, fallback?: string): string {
   const parts = key.split('.');
   let value: unknown = messages;
   for (const part of parts) {
     if (value && typeof value === 'object' && part in value) {
       value = (value as Record<string, unknown>)[part];
     } else {
-      return fallback;
+      break;
     }
   }
-  return typeof value === 'string' ? value : fallback;
+  const resolved = typeof value === 'string' ? value : (fallback ?? key);
+  if (params) {
+    return resolved.replace(/\{(\w+)\}/g, (_, name) => {
+      const v = params[name];
+      return v != null ? String(v) : `{${name}}`;
+    });
+  }
+  return resolved;
 }

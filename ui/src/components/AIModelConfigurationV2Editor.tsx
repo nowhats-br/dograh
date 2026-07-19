@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 import { Info, KeyRound, Save } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -272,16 +273,14 @@ function optionalByokService(config: Record<string, unknown>, service: ServiceSe
 }
 
 function ThirdPartyProviderNotice() {
+    const { t } = useTranslation();
     return (
         <div className="mt-4 flex gap-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
             <Info className="mt-0.5 h-4 w-4 shrink-0" />
             <div>
-                <p className="font-medium">Third-party provider data notice</p>
+                <p className="font-medium">{t('modelConfig.thirdPartyNoticeTitle')}</p>
                 <p className="mt-1 leading-6">
-                    Dograh sends data required by the selected model service. This may include prompts,
-                    transcripts, audio, generated text, tool data, and request metadata depending on the
-                    provider and service type. Review the provider&apos;s data and retention policies before
-                    using sensitive data.
+                    {t('modelConfig.thirdPartyNoticeBody')}
                 </p>
             </div>
         </div>
@@ -325,6 +324,7 @@ function PricingSummary({
     includeDograhModel: boolean;
     thirdPartyModels?: boolean;
 }) {
+    const { t } = useTranslation();
     const platformPrice = pricing?.platform_usage;
     const dograhModelPrice = includeDograhModel ? pricing?.dograh_model : null;
     if (!platformPrice && !dograhModelPrice) return null;
@@ -332,16 +332,16 @@ function PricingSummary({
     return (
         <Card className="mb-4 border-primary/20 bg-primary/[0.03]">
             <CardContent className="space-y-2 pt-5 text-sm">
-                <p className="font-medium">Usage pricing</p>
+                <p className="font-medium">{t('modelConfig.usagePricing')}</p>
                 {platformPrice && (
-                    <MetricPrice label="Platform usage" price={platformPrice} />
+                    <MetricPrice label={t('modelConfig.platformUsage')} price={platformPrice} />
                 )}
                 {dograhModelPrice && (
-                    <MetricPrice label="Dograh model usage" price={dograhModelPrice} />
+                    <MetricPrice label={t('modelConfig.dograhModelUsage')} price={dograhModelPrice} />
                 )}
                 {thirdPartyModels && (
                     <p className="text-muted-foreground">
-                        Your selected model provider may charge separately for its usage.
+                        {t('modelConfig.thirdPartyCharges')}
                     </p>
                 )}
             </CardContent>
@@ -355,9 +355,11 @@ export function AIModelConfigurationV2Editor({
     effectiveConfiguration,
     pricing,
     onSave,
-    submitLabel = "Save Configuration",
+    submitLabel,
 }: AIModelConfigurationV2EditorProps) {
     const defaultsForByok = useMemo(() => byokDefaults(defaults), [defaults]);
+    const { t } = useTranslation();
+    const effectiveSubmitLabel = submitLabel ?? t('modelConfig.saveConfiguration');
     const [mode, setMode] = useState<ModelMode>("dograh");
     const [dograh, setDograh] = useState<DograhFormState>(() => ({
         api_key: "",
@@ -398,7 +400,7 @@ export function AIModelConfigurationV2Editor({
                 || dograh.speed > dograhSpeedRange.max
             ) {
                 throw new Error(
-                    `Dograh speed must be between ${dograhSpeedRange.min} and ${dograhSpeedRange.max}.`,
+                    t('modelConfig.speedRangeError', { min: dograhSpeedRange.min, max: dograhSpeedRange.max }),
                 );
             }
             await onSave({
@@ -412,7 +414,7 @@ export function AIModelConfigurationV2Editor({
                 },
             });
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to save configuration");
+            setError(err instanceof Error ? err.message : t('modelConfig.saveError'));
         } finally {
             setIsSavingDograh(false);
         }
@@ -459,14 +461,14 @@ export function AIModelConfigurationV2Editor({
 
             <Tabs value={mode} onValueChange={(value) => setMode(value as ModelMode)} className="space-y-6">
                 <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="realtime">Speech to Speech</TabsTrigger>
-                    <TabsTrigger value="dograh">Dograh</TabsTrigger>
-                    <TabsTrigger value="byok">BYOK</TabsTrigger>
+                    <TabsTrigger value="realtime">{t('modelConfig.speechToSpeech')}</TabsTrigger>
+                    <TabsTrigger value="dograh">{t('modelConfig.dograhTab')}</TabsTrigger>
+                    <TabsTrigger value="byok">{t('modelConfig.byokTab')}</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="realtime" className="mt-0">
                     <p className="mb-4 text-sm text-muted-foreground">
-                        A single speech-to-speech model handles the conversation in realtime (no separate transcriber or voice). An LLM is still required for variable extraction and QA.
+                        {t('modelConfig.realtimeDescription')}
                     </p>
                     <PricingSummary pricing={pricing} includeDograhModel={false} thirdPartyModels />
                     <ServiceConfigurationForm
@@ -483,24 +485,24 @@ export function AIModelConfigurationV2Editor({
 
                 <TabsContent value="dograh" className="mt-0">
                     <p className="mb-4 text-sm text-muted-foreground">
-                        Dograh provides a managed transcriber, LLM, and voice pipeline. Select a voice and language while Dograh manages the underlying model providers.{" "}
-                        We offer custom pricing and a 15-second pulse with a monthly commitment.{" "}
+                        {t('modelConfig.dograhDescriptionBefore')}{" "}
+                        {t('modelConfig.dograhDescriptionPricing')}{" "}
                         <a
                             href="https://www.dograh.com/contact"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="underline"
                         >
-                            Contact us
+                            {t('modelConfig.contactUs')}
                         </a>
-                        .
+                        {t('modelConfig.dograhDescriptionAfter')}
                     </p>
                     <PricingSummary pricing={pricing} includeDograhModel />
                     <Card>
                         <CardContent className="pt-6">
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-2 sm:col-span-2">
-                                    <Label>Voice</Label>
+                                    <Label>{t('modelConfig.voice')}</Label>
                                     <VoiceSelectorModal
                                         provider="dograh"
                                         value={dograh.voice}
@@ -510,10 +512,10 @@ export function AIModelConfigurationV2Editor({
                                 </div>
 
                                 <div className="space-y-2 sm:col-span-2">
-                                    <Label>Language</Label>
+                                    <Label>{t('modelConfig.language')}</Label>
                                     <Select value={dograh.language} onValueChange={(language) => setDograh({ ...dograh, language })}>
                                         <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Select language" />
+                                            <SelectValue placeholder={t('modelConfig.selectLanguage')} />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {defaults.dograh.languages.map((language) => (
@@ -525,13 +527,13 @@ export function AIModelConfigurationV2Editor({
                                     </Select>
                                     {dograh.language === MULTILINGUAL_LANGUAGE_CODE && multilingualLanguageNames && (
                                         <p className="text-xs text-muted-foreground">
-                                            Auto-detects {multilingualLanguageNames}.
+                                            {t('modelConfig.autoDetects', { languages: multilingualLanguageNames })}.
                                         </p>
                                     )}
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="dograh-speed">Speed</Label>
+                                    <Label htmlFor="dograh-speed">{t('modelConfig.speed')}</Label>
                                     <Input
                                         id="dograh-speed"
                                         type="number"
@@ -550,7 +552,7 @@ export function AIModelConfigurationV2Editor({
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="dograh-api-key">API Key</Label>
+                                    <Label htmlFor="dograh-api-key">{t('modelConfig.apiKey')}</Label>
                                     <div className="relative">
                                         <KeyRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                         <Input
@@ -558,7 +560,7 @@ export function AIModelConfigurationV2Editor({
                                             className="pl-9"
                                             value={dograh.api_key}
                                             onChange={(event) => setDograh({ ...dograh, api_key: event.target.value })}
-                                            placeholder="Enter API key"
+                                            placeholder={t('modelConfig.enterApiKey')}
                                         />
                                     </div>
                                 </div>
@@ -566,7 +568,7 @@ export function AIModelConfigurationV2Editor({
 
                             <Button type="button" className="mt-6 w-full" onClick={saveDograhConfiguration} disabled={isSavingDograh}>
                                 <Save className="mr-2 h-4 w-4" />
-                                {isSavingDograh ? "Saving..." : submitLabel}
+                                {isSavingDograh ? t('common.saving') : effectiveSubmitLabel}
                             </Button>
                         </CardContent>
                     </Card>
@@ -574,7 +576,7 @@ export function AIModelConfigurationV2Editor({
 
                 <TabsContent value="byok" className="mt-0">
                     <p className="mb-4 text-sm text-muted-foreground">
-                        Configure separate transcriber, LLM, and voice providers using your own API keys. An embeddings model can also be configured for knowledge retrieval.
+                        {t('modelConfig.byokDescription')}
                     </p>
                     <PricingSummary pricing={pricing} includeDograhModel={false} thirdPartyModels />
                     <ServiceConfigurationForm

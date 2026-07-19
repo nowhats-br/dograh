@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useWorkflow } from "@/app/workflow/[workflowId]/contexts/WorkflowContext";
 import type { DocumentResponseSchema } from "@/client/types.gen";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 
 interface DocumentBadgesProps {
     documentUuids: string[];
@@ -12,6 +13,7 @@ interface DocumentBadgesProps {
 }
 
 export const DocumentBadges = ({ documentUuids, onStaleUuidsDetected }: DocumentBadgesProps) => {
+    const { t } = useTranslation();
     const { documents } = useWorkflow();
     const [documentNames, setDocumentNames] = useState<Record<string, string>>({});
 
@@ -50,7 +52,7 @@ export const DocumentBadges = ({ documentUuids, onStaleUuidsDetected }: Document
 
     // Show loading while data hasn't loaded yet
     if (documents === undefined) {
-        return <Badge variant="outline">Loading...</Badge>;
+        return <Badge variant="outline">{t('common.loading')}</Badge>;
     }
 
     return (

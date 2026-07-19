@@ -42,10 +42,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { TOOL_DOCUMENTATION_URLS } from "@/constants/documentation";
 import { detailFromError } from "@/lib/apiError";
 import { useAuth } from "@/lib/auth";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 
 import {
     createMcpDefinition,
-    DEFAULT_END_CALL_REASON_DESCRIPTION,
     type EndCallMessageType,
     type ExtendedTransferCallConfig,
     getCategoryConfig,
@@ -82,6 +82,7 @@ function headersToRows(headers: Record<string, string> | undefined | null): KeyV
 }
 
 export default function ToolDetailPage() {
+    const { t } = useTranslation();
     const { toolUuid } = useParams<{ toolUuid: string }>();
     const { user, getAccessToken, redirectToLogin, loading } = useAuth();
     const router = useRouter();
@@ -120,7 +121,7 @@ export default function ToolDetailPage() {
     const handleEndCallReasonChange = (enabled: boolean) => {
         setEndCallReason(enabled);
         if (enabled && !endCallReasonDescription) {
-            setEndCallReasonDescription(DEFAULT_END_CALL_REASON_DESCRIPTION);
+            setEndCallReasonDescription(t("tools.config.defaultEndCallReasonDescription"));
         }
     };
 
@@ -178,7 +179,7 @@ export default function ToolDetailPage() {
                 populateFormFromTool(response.data);
             }
         } catch (err) {
-            setError("Failed to fetch tool");
+            setError(t("tools.detail.fetchError"));
             console.error("Error fetching tool:", err);
         } finally {
             setIsLoading(false);
@@ -355,7 +356,7 @@ export default function ToolDetailPage() {
                 setRecordings(response.data.recordings);
             }
         } catch {
-            // Non-critical — dropdowns will show "No recordings available"
+            // Non-critical
         }
     }, [loading, user]);
 
@@ -374,13 +375,13 @@ export default function ToolDetailPage() {
             // No validation needed for built-in tools
         } else if (tool.category === "transfer_call") {
             if (transferDestinationSource === "static" && !normalizedTransferDestination) {
-                setError("Please enter a transfer destination");
+                setError(t("tools.detail.transferDestinationRequired"));
                 return;
             }
             if (transferDestinationSource === "dynamic") {
                 const resolverUrlValidation = validateUrl(transferResolverUrl);
                 if (!resolverUrlValidation.valid) {
-                    setError(resolverUrlValidation.error || "Invalid resolver URL");
+                    setError(resolverUrlValidation.error || t("tools.detail.invalidResolverUrl"));
                     return;
                 }
 
@@ -388,58 +389,55 @@ export default function ToolDetailPage() {
                     (p) => !p.name.trim() || !p.description.trim()
                 );
                 if (invalidTransferParams.length > 0) {
-                    setError("All resolver arguments must have a name and description");
+                    setError(t("tools.detail.allResolverArgumentsRequired"));
                     return;
                 }
                 const transferParamNames = transferParameters
                     .map((p) => p.name.trim())
                     .filter(Boolean);
                 if (new Set(transferParamNames).size !== transferParamNames.length) {
-                    setError("Resolver argument names must be unique");
+                    setError(t("tools.detail.resolverArgumentNamesUnique"));
                     return;
                 }
                 const invalidPresetTransferParams = transferPresetParameters.filter(
                     (p) => !p.name.trim() || !p.valueTemplate.trim()
                 );
                 if (invalidPresetTransferParams.length > 0) {
-                    setError("All resolver preset parameters must have a name and a value");
+                    setError(t("tools.detail.allResolverPresetParamsRequired"));
                     return;
                 }
                 const transferPresetParamNames = transferPresetParameters
                     .map((p) => p.name.trim())
                     .filter(Boolean);
                 if (new Set(transferPresetParamNames).size !== transferPresetParamNames.length) {
-                    setError("Resolver preset parameter names must be unique");
+                    setError(t("tools.detail.resolverPresetParamNamesUnique"));
                     return;
                 }
             }
         } else if (tool.category === "mcp") {
-            // Validate MCP server URL (must be http(s))
             if (!mcpUrl.trim()) {
-                setError("Please enter the MCP server URL");
+                setError(t("tools.detail.mcpUrlRequired"));
                 return;
             }
             if (!MCP_URL_PATTERN.test(mcpUrl.trim())) {
-                setError("MCP server URL must start with http:// or https://");
+                setError(t("tools.detail.mcpUrlInvalid"));
                 return;
             }
         } else if (tool.category !== "end_call") {
-            // Validate URL for HTTP API tools
             const urlValidation = validateUrl(url);
             if (!urlValidation.valid) {
-                setError(urlValidation.error || "Invalid URL");
+                setError(urlValidation.error || t("tools.detail.invalidUrl"));
                 return;
             }
 
-            // Validate parameters have names
             const invalidParams = parameters.filter((p) => !p.name.trim());
             if (invalidParams.length > 0) {
-                setError("All parameters must have a name");
+                setError(t("tools.detail.allParamsMustHaveName"));
                 return;
             }
             const paramNames = parameters.map((p) => p.name.trim()).filter(Boolean);
             if (new Set(paramNames).size !== paramNames.length) {
-                setError("Parameter names must be unique");
+                setError(t("tools.detail.paramNamesMustBeUnique"));
                 return;
             }
 
@@ -447,7 +445,7 @@ export default function ToolDetailPage() {
                 (p) => !p.name.trim() || !p.valueTemplate.trim()
             );
             if (invalidPresetParams.length > 0) {
-                setError("All preset parameters must have a name and a value");
+                setError(t("tools.detail.allPresetParamsMustHaveNameAndValue"));
                 return;
             }
         }
@@ -608,7 +606,7 @@ export default function ToolDetailPage() {
             });
 
             if (response.error) {
-                setError(detailFromError(response.error, "Failed to save tool"));
+                setError(detailFromError(response.error, t("tools.detail.saveError")));
                 return;
             }
 
@@ -636,7 +634,7 @@ export default function ToolDetailPage() {
                 }
             }
         } catch (err) {
-            setError("Failed to save tool");
+            setError(t("tools.detail.saveError"));
             console.error("Error saving tool:", err);
         } finally {
             setIsSaving(false);
@@ -720,10 +718,10 @@ const data = await response.json();`;
             <div className="min-h-screen">
                 <div className="container mx-auto px-4 py-8">
                     <div className="max-w-4xl mx-auto text-center">
-                        <h1 className="text-2xl font-bold mb-4">Tool not found</h1>
+                        <h1 className="text-2xl font-bold mb-4">{t("tools.detail.toolNotFound")}</h1>
                         <Button onClick={() => router.push("/tools")}>
                             <ArrowLeft className="w-4 h-4 mr-2" />
-                            Back to Tools
+                            {t("tools.detail.backToTools")}
                         </Button>
                     </div>
                 </div>
@@ -768,7 +766,7 @@ const data = await response.json();`;
                                 onClick={() => router.push("/tools")}
                             >
                                 <ArrowLeft className="w-4 h-4 mr-2" />
-                                Back
+                                {t("tools.detail.back")}
                             </Button>
                             <div className="flex items-center gap-3">
                                 <div
@@ -782,7 +780,7 @@ const data = await response.json();`;
                                 <div>
                                     <h1 className="text-xl font-bold">{name}</h1>
                                     <p className="text-sm text-muted-foreground">
-                                        {getToolTypeLabel(tool.category)}
+                                        {getToolTypeLabel(tool.category, t)}
                                     </p>
                                 </div>
                             </div>
@@ -794,7 +792,7 @@ const data = await response.json();`;
                                     onClick={() => setShowCodeDialog(true)}
                                 >
                                     <Code className="w-4 h-4 mr-2" />
-                                    View Code
+                                    {t("tools.detail.viewCode")}
                                 </Button>
                             )}
                             {TOOL_DOCUMENTATION_URLS[tool.category] && (
@@ -804,7 +802,7 @@ const data = await response.json();`;
                                     rel="noopener noreferrer"
                                     className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
                                 >
-                                    Docs
+                                    {t("tools.detail.docs")}
                                     <ExternalLink className="h-3.5 w-3.5" />
                                 </a>
                             )}
@@ -817,8 +815,8 @@ const data = await response.json();`;
                             onNameChange={setName}
                             description={description}
                             onDescriptionChange={setDescription}
-                            title="Calculator Configuration"
-                            subtitle="Built-in calculator for arithmetic operations. No additional configuration needed."
+                            title={t("tools.detail.calculatorTitle")}
+                            subtitle={t("tools.detail.calculatorSubtitle")}
                         />
                     ) : isEndCallTool ? (
                         <EndCallToolConfig
@@ -875,48 +873,48 @@ const data = await response.json();`;
                     ) : isMcpTool ? (
                         <Card>
                             <CardHeader>
-                                <CardTitle>MCP Server Configuration</CardTitle>
+                                <CardTitle>{t("tools.detail.mcpTitle")}</CardTitle>
                                 <CardDescription>
-                                    Configure the MCP server endpoint. Its tools become available to the agent.
+                                    {t("tools.detail.mcpDescription")}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
                                 <div className="space-y-2">
-                                    <Label htmlFor="mcp-name">Tool Name</Label>
+                                    <Label htmlFor="mcp-name">{t("tools.detail.mcpToolName")}</Label>
                                     <Input
                                         id="mcp-name"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        placeholder="e.g., Customer MCP Server"
+                                        placeholder={t("tools.detail.mcpToolNamePlaceholder")}
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="mcp-description">Description</Label>
+                                    <Label htmlFor="mcp-description">{t("tools.detail.mcpDescriptionLabel")}</Label>
                                     <p className="text-xs text-muted-foreground">
-                                        Provide a description which makes it easy for LLM to understand what this tool does
+                                        {t("tools.detail.mcpDescriptionHelp")}
                                     </p>
                                     <Textarea
                                         id="mcp-description"
                                         value={description}
                                         onChange={(e) => setDescription(e.target.value)}
-                                        placeholder="What does this MCP server provide?"
+                                        placeholder={t("tools.detail.mcpDescriptionPlaceholder")}
                                         rows={3}
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="mcp-url">MCP Server URL</Label>
+                                    <Label htmlFor="mcp-url">{t("tools.detail.mcpUrl")}</Label>
                                     <Input
                                         id="mcp-url"
                                         value={mcpUrl}
                                         onChange={(e) => setMcpUrl(e.target.value)}
-                                        placeholder="https://your-mcp-server.example.com/mcp"
+                                        placeholder={t("tools.detail.mcpUrlPlaceholder")}
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label>Transport</Label>
+                                    <Label>{t("tools.detail.mcpTransport")}</Label>
                                     <Input
                                         value="Streamable HTTP"
                                         disabled
@@ -927,20 +925,20 @@ const data = await response.json();`;
                                 <CredentialSelector
                                     value={mcpCredentialUuid}
                                     onChange={setMcpCredentialUuid}
-                                    label="Credential (Optional)"
-                                    description="Select a credential for authenticating with the MCP server, or leave empty for no auth."
+                                    label={t("tools.detail.mcpCredential")}
+                                    description={t("tools.detail.mcpCredentialDescription")}
                                 />
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="mcp-tools-filter">Tools Filter (Optional)</Label>
+                                    <Label htmlFor="mcp-tools-filter">{t("tools.detail.mcpToolsFilter")}</Label>
                                     <Input
                                         id="mcp-tools-filter"
                                         value={mcpToolsFilter}
                                         onChange={(e) => setMcpToolsFilter(e.target.value)}
-                                        placeholder="e.g., tool_one, tool_two"
+                                        placeholder={t("tools.detail.mcpToolsFilterPlaceholder")}
                                     />
                                     <p className="text-xs text-muted-foreground">
-                                        Comma-separated list of tool names to allow. Leave empty to expose all tools from the server.
+                                        {t("tools.detail.mcpToolsFilterHelp")}
                                     </p>
                                 </div>
                             </CardContent>
@@ -995,51 +993,51 @@ const data = await response.json();`;
 
                     {saveSuccess && (
                         <div className="mt-4 p-4 bg-green-500/10 border border-green-500/20 rounded-lg text-green-600">
-                            Tool saved successfully!
+                            {t("tools.detail.savedSuccess")}
                         </div>
                     )}
 
                     <div className="flex justify-end gap-2 mt-6">
-                        {isHttpApiTool && (
-                            hasUnsavedHttpChanges ? (
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <span className="inline-flex" tabIndex={0}>
-                                            <Button type="button" variant="outline" disabled>
-                                                <FlaskConical className="w-4 h-4 mr-2" />
-                                                Test Tool
-                                            </Button>
-                                        </span>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="top">
-                                        Save the tool before testing.
-                                    </TooltipContent>
-                                </Tooltip>
-                            ) : (
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => setShowTestDialog(true)}
-                                    disabled={isSaving}
-                                >
-                                    <FlaskConical className="w-4 h-4 mr-2" />
-                                    Test Tool
-                                </Button>
-                            )
+                    {isHttpApiTool && (
+                        hasUnsavedHttpChanges ? (
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <span className="inline-flex" tabIndex={0}>
+                                        <Button type="button" variant="outline" disabled>
+                                            <FlaskConical className="w-4 h-4 mr-2" />
+                                            {t("tools.detail.testTool")}
+                                        </Button>
+                                    </span>
+                                </TooltipTrigger>
+                                <TooltipContent side="top">
+                                    {t("tools.detail.saveBeforeTest")}
+                                </TooltipContent>
+                            </Tooltip>
+                        ) : (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setShowTestDialog(true)}
+                                disabled={isSaving}
+                            >
+                                <FlaskConical className="w-4 h-4 mr-2" />
+                                {t("tools.detail.testTool")}
+                            </Button>
+                        )
+                    )}
+                    <Button onClick={handleSave} disabled={isSaving}>
+                        {isSaving ? (
+                            <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                {t("common.saving")}
+                            </>
+                        ) : (
+                            <>
+                                <Save className="w-4 h-4 mr-2" />
+                                {t("common.save")}
+                            </>
                         )}
-                        <Button onClick={handleSave} disabled={isSaving}>
-                            {isSaving ? (
-                                <>
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Saving...
-                                </>
-                            ) : (
-                                <>
-                                    <Save className="w-4 h-4 mr-2" />
-                                    Save
-                                </>
-                            )}
-                        </Button>
+                    </Button>
                     </div>
                 </div>
             </div>
@@ -1048,9 +1046,9 @@ const data = await response.json();`;
             <Dialog open={showCodeDialog} onOpenChange={setShowCodeDialog}>
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
-                        <DialogTitle>Code Preview</DialogTitle>
+                        <DialogTitle>{t("tools.detail.codePreview")}</DialogTitle>
                         <DialogDescription>
-                            JavaScript code to make this API call
+                            {t("tools.detail.codePreviewDescription")}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="bg-muted rounded-lg p-4 font-mono text-sm overflow-auto max-h-96">
