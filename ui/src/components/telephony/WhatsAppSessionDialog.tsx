@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 
 interface WhatsAppSessionDialogProps {
   open: boolean;
@@ -45,6 +46,7 @@ export function WhatsAppSessionDialog({
   onSaved,
 }: WhatsAppSessionDialogProps) {
   const { getAccessToken } = useAuth();
+  const { t } = useTranslation();
   const [sessionName, setSessionName] = useState("");
   const [state, setState] = useState<SessionState>("idle");
   const [qrData, setQrData] = useState<string | null>(null);
@@ -205,7 +207,7 @@ export function WhatsAppSessionDialog({
         throw new Error("Failed to register phone number");
       }
 
-      toast.success("WhatsApp session paired and registered!");
+      toast.success(t('telephony.wacalls.pairedToast'));
       onOpenChange(false);
       onSaved();
     } catch (err) {
@@ -224,9 +226,9 @@ export function WhatsAppSessionDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Add WhatsApp Session</DialogTitle>
+          <DialogTitle>{t('telephony.wacalls.addSession')}</DialogTitle>
           <DialogDescription>
-            Scan the QR code with your WhatsApp app to link this session.
+            {t('telephony.wacalls.scanInstructions')}
           </DialogDescription>
         </DialogHeader>
 
@@ -234,7 +236,7 @@ export function WhatsAppSessionDialog({
           {state === "idle" && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="session-name">Session Name (optional)</Label>
+                <Label htmlFor="session-name">{t('telephony.wacalls.sessionNameLabel')}</Label>
                 <Input
                   id="session-name"
                   placeholder="e.g. Support Line"
@@ -243,7 +245,7 @@ export function WhatsAppSessionDialog({
                 />
               </div>
               <p className="text-sm text-muted-foreground">
-                This will create a new WhatsApp session and link it to your Dograh configuration.
+                {t('telephony.wacalls.scanInstructions')}
               </p>
             </>
           )}
@@ -251,7 +253,7 @@ export function WhatsAppSessionDialog({
           {state === "creating" && (
             <div className="flex flex-col items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              <p className="mt-4 text-sm text-muted-foreground">Creating session...</p>
+              <p className="mt-4 text-sm text-muted-foreground">{t('telephony.wacalls.creatingSession')}</p>
             </div>
           )}
 
@@ -265,13 +267,13 @@ export function WhatsAppSessionDialog({
                     className="w-64 h-64 border rounded-lg"
                   />
                   <p className="mt-4 text-sm text-muted-foreground text-center">
-                    Open WhatsApp on your phone, go to Settings → Linked Devices, and scan this QR code.
+                    {t('telephony.wacalls.qrInstructions')}
                   </p>
                 </>
               ) : (
                 <>
                   <div className="animate-pulse bg-muted w-64 h-64 rounded-lg"></div>
-                  <p className="mt-4 text-sm text-muted-foreground">Waiting for QR code...</p>
+                  <p className="mt-4 text-sm text-muted-foreground">{t('telephony.wacalls.waitingQR')}</p>
                 </>
               )}
             </div>
@@ -294,8 +296,8 @@ export function WhatsAppSessionDialog({
                   />
                 </svg>
               </div>
-              <p className="mt-4 text-sm font-medium">Successfully paired!</p>
-              <p className="text-xs text-muted-foreground">Setting up phone number...</p>
+              <p className="mt-4 text-sm font-medium">{t('telephony.wacalls.pairedSuccess')}</p>
+              <p className="text-xs text-muted-foreground">{t('telephony.wacalls.setupPhoneNumber')}</p>
             </div>
           )}
 
@@ -303,7 +305,7 @@ export function WhatsAppSessionDialog({
             <div className="space-y-2">
               <p className="text-sm text-destructive">{error}</p>
               <Button variant="outline" onClick={startPairing} className="w-full">
-                Try Again
+                {t('common.retry')}
               </Button>
             </div>
           )}
@@ -311,10 +313,10 @@ export function WhatsAppSessionDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={state === "creating"}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           {state === "idle" && (
-            <Button onClick={startPairing}>Start Pairing</Button>
+            <Button onClick={startPairing}>{t('telephony.wacalls.startPairing')}</Button>
           )}
         </DialogFooter>
       </DialogContent>

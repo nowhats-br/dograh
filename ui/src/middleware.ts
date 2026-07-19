@@ -2,11 +2,20 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 import { getServerBackendUrl } from '@/lib/apiClient';
+import { getBrowserLocale, LOCALE_COOKIE, SUPPORTED_LOCALES, type Locale } from '@/lib/i18n/config';
 
 const OSS_TOKEN_COOKIE = 'dograh_auth_token';
 
 // Paths that don't require authentication in OSS mode
 const PUBLIC_PATHS = ['/auth/login', '/auth/signup'];
+
+function getLocaleFromRequest(request: NextRequest): Locale {
+  const cookieVal = request.cookies.get(LOCALE_COOKIE)?.value;
+  if (cookieVal && (SUPPORTED_LOCALES as readonly string[]).includes(cookieVal)) {
+    return cookieVal as Locale;
+  }
+  return getBrowserLocale(request.headers.get('Accept-Language') ?? undefined);
+}
 
 let cachedAuthProvider: string | null = null;
 
@@ -40,11 +49,18 @@ async function fetchAuthProvider(): Promise<string> {
 }
 
 export async function middleware(request: NextRequest) {
+  // Locale detection
+  const locale = getLocaleFromRequest(request);
+  const response = NextResponse.next();
+  if (request.cookies.get(LOCALE_COOKIE)?.value !== locale) {
+    response.cookies.set(LOCALE_COOKIE, locale, { path: '/', maxAge: 31536000, sameSite: 'lax' });
+  }
+
   const authProvider = await fetchAuthProvider();
 
   // Only handle OSS mode
   if (authProvider !== 'local') {
-    return NextResponse.next();
+    return response;
   }
 
   const token = request.cookies.get(OSS_TOKEN_COOKIE)?.value;
@@ -52,7 +68,7 @@ export async function middleware(request: NextRequest) {
 
   // Allow public paths without auth
   if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
-    return NextResponse.next();
+    return response;
   }
 
   // If no token, redirect to login
@@ -61,7 +77,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 // Configure which routes the middleware runs on

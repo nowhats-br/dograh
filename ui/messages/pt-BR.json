@@ -1,0 +1,103 @@
+{
+  "common": {
+    "save": "Salvar",
+    "saving": "Salvando...",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "create": "Criar",
+    "confirm": "Confirmar",
+    "close": "Fechar",
+    "search": "Pesquisar",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "retry": "Tentar novamente",
+    "back": "Voltar",
+    "next": "Próximo",
+    "submit": "Enviar",
+    "reset": "Redefinir",
+    "add": "Adicionar",
+    "remove": "Remover"
+  },
+  "auth": {
+    "login": {
+      "title": "Entrar",
+      "email": "E-mail",
+      "password": "Senha",
+      "submit": "Entrar",
+      "forgotPassword": "Esqueceu a senha?",
+      "noAccount": "Não tem uma conta?",
+      "signupLink": "Cadastre-se"
+    },
+    "signup": {
+      "title": "Criar Conta",
+      "name": "Nome",
+      "email": "E-mail",
+      "password": "Senha",
+      "submit": "Criar Conta",
+      "haveAccount": "Já tem uma conta?",
+      "loginLink": "Entrar"
+    },
+    "logout": "Sair"
+  },
+  "telephony": {
+    "title": "Telefonia",
+    "providers": "Provedores de Telefonia",
+    "wacalls": {
+      "name": "WaCalls",
+      "description": "Chamadas de voz WhatsApp via WaCalls",
+      "connectWhatsApp": "Conectar WhatsApp",
+      "disconnect": "Desconectar",
+      "qrCode": "QR Code",
+      "scanQR": "Escaneie o QR code com o WhatsApp para conectar",
+      "sessionName": "Nome da Sessão",
+      "addSession": "Adicionar Sessão WhatsApp",
+      "scanInstructions": "Escaneie o QR code com seu WhatsApp para vincular esta sessão.",
+      "sessionNameLabel": "Nome da Sessão (opcional)",
+      "sessionNamePlaceholder": "Digite um nome para esta sessão",
+      "startPairing": "Iniciar Pareamento",
+      "creatingSession": "Criando sessão...",
+      "waitingQR": "Aguardando QR code...",
+      "qrInstructions": "Abra o WhatsApp no seu celular, vá em Configurações → Dispositivos Conectados e escaneie este QR code.",
+      "pairedSuccess": "Pareado com sucesso!",
+      "setupPhoneNumber": "Configurando número de telefone...",
+      "pairedToast": "Sessão WhatsApp pareada e registrada!",
+      "status": {
+        "connected": "Conectado",
+        "disconnected": "Desconectado",
+        "connecting": "Conectando...",
+        "expired": "Expirado",
+        "error": "Erro"
+      },
+      "settings": "Configurações WaCalls",
+      "instances": "Instâncias",
+      "addInstance": "Adicionar Instância",
+      "instanceName": "Nome da Instância",
+      "webhookUrl": "URL do Webhook",
+      "startCall": "Iniciar Chamada",
+      "endCall": "Encerrar Chamada"
+    }
+  },
+  "settings": {
+    "title": "Configurações",
+    "general": "Geral",
+    "telephony": "Telefonia",
+    "language": "Idioma",
+    "languageDescription": "Escolha seu idioma preferido"
+  },
+  "navigation": {
+    "dashboard": "Painel",
+    "calls": "Chamadas",
+    "flows": "Fluxos",
+    "agents": "Agentes",
+    "telephony": "Telefonia",
+    "settings": "Configurações",
+    "billing": "Faturamento",
+    "logout": "Sair"
+  },
+  "locale": {
+    "en": "English",
+    "pt-BR": "Português (Brasil)"
+  }
+}

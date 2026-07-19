@@ -16,6 +16,7 @@ import { OnboardingProvider } from "@/context/OnboardingContext";
 import { OrgConfigProvider } from "@/context/OrgConfigContext";
 import { TelephonyConfigWarningsProvider } from "@/context/TelephonyConfigWarningsContext";
 import { AuthProvider } from "@/lib/auth";
+import { LocaleProvider } from "@/lib/i18n/LocaleContext";
 
 
 const geistSans = Geist({
@@ -67,24 +68,26 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
           <SentryErrorBoundary>
-            <AuthProvider>
-              <AppConfigProvider>
-                <Suspense fallback={<SpinLoader />}>
-                  <OrgConfigProvider>
-                    <TelephonyConfigWarningsProvider>
-                      <OnboardingProvider>
-                        <PostHogIdentify />
-                        <AppLayout>
-                          {children}
-                        </AppLayout>
-                        <Toaster />
-                        <ChatwootWidget />
-                      </OnboardingProvider>
-                    </TelephonyConfigWarningsProvider>
-                  </OrgConfigProvider>
-                </Suspense>
-              </AppConfigProvider>
-            </AuthProvider>
+            <LocaleProvider>
+              <AuthProvider>
+                <AppConfigProvider>
+                  <Suspense fallback={<SpinLoader />}>
+                    <OrgConfigProvider>
+                      <TelephonyConfigWarningsProvider>
+                        <OnboardingProvider>
+                          <PostHogIdentify />
+                          <AppLayout>
+                            {children}
+                          </AppLayout>
+                          <Toaster />
+                          <ChatwootWidget />
+                        </OnboardingProvider>
+                      </TelephonyConfigWarningsProvider>
+                    </OrgConfigProvider>
+                  </Suspense>
+                </AppConfigProvider>
+              </AuthProvider>
+            </LocaleProvider>
           </SentryErrorBoundary>
         </ThemeProvider>
       </body>

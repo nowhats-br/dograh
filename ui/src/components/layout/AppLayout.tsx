@@ -14,6 +14,7 @@ import { LeadFormsProvider } from "@/context/LeadFormsContext";
 
 import { AppSidebar } from "./AppSidebar";
 import { GitHubStarBadge } from "./GitHubStarBadge";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 function AppHeader() {
   const { toggleSidebar } = useSidebar();
@@ -41,6 +42,7 @@ function AppHeader() {
             <span className="hidden sm:inline">Join Slack</span>
           </a>
         </Button>
+        <LanguageSwitcher />
         <GitHubStarBadge source="app_header" />
       </div>
     </header>
