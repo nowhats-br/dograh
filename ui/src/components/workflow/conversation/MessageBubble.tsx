@@ -3,6 +3,7 @@
 import { Brain } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 
 interface MessageBubbleProps {
     role: "user" | "assistant";
@@ -21,6 +22,7 @@ export function MessageBubble({
     reasoningDurationMs,
     containerClassName,
 }: MessageBubbleProps) {
+    const { t } = useTranslation();
     const isUser = role === "user";
     const isMuted = tone === "muted";
 
@@ -30,7 +32,7 @@ export function MessageBubble({
                 {!isUser && reasoningDurationMs !== undefined ? (
                     <div className="flex items-center gap-1.5 px-1 text-xs text-muted-foreground">
                         <Brain className="h-3 w-3" />
-                        <span className="font-medium">Reasoning Delay:</span>
+                        <span className="font-medium">{t("workflow.conversation.messageBubble.reasoningDelay")}</span>
                         <span>{Math.round(reasoningDurationMs)}ms</span>
                     </div>
                 ) : null}
@@ -53,7 +55,7 @@ export function MessageBubble({
                                 isUser ? "text-primary-foreground/70" : "text-muted-foreground",
                             )}
                         >
-                            speaking...
+                            {t("workflow.conversation.messageBubble.speaking")}
                         </div>
                     ) : null}
                 </div>

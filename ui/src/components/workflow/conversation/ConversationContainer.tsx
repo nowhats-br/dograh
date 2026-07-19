@@ -4,6 +4,7 @@ import { MessageSquare, Mic, MicOff } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 
 import type { ConversationStatus } from "./types";
 
@@ -14,30 +15,32 @@ interface ConversationContainerProps {
     messageCount?: number;
 }
 
-const STATUS_CONFIG = {
-    ready: {
-        icon: MicOff,
-        label: "Ready",
-        className: "bg-muted text-muted-foreground",
-    },
-    live: {
-        icon: Mic,
-        label: "Live",
-        className: "bg-green-500/10 text-green-600 dark:text-green-400",
-    },
-    ended: {
-        icon: MicOff,
-        label: "Ended",
-        className: "bg-muted text-muted-foreground",
-    },
-} satisfies Record<ConversationStatus, { icon: typeof Mic; label: string; className: string }>;
-
 export function ConversationContainer({
     title,
     status,
     children,
     messageCount,
 }: ConversationContainerProps) {
+    const { t } = useTranslation();
+
+    const STATUS_CONFIG = {
+        ready: {
+            icon: MicOff,
+            label: t("workflow.conversation.container.statusReady"),
+            className: "bg-muted text-muted-foreground",
+        },
+        live: {
+            icon: Mic,
+            label: t("workflow.conversation.container.statusLive"),
+            className: "bg-green-500/10 text-green-600 dark:text-green-400",
+        },
+        ended: {
+            icon: MicOff,
+            label: t("workflow.conversation.container.statusEnded"),
+            className: "bg-muted text-muted-foreground",
+        },
+    } satisfies Record<ConversationStatus, { icon: typeof Mic; label: string; className: string }>;
+
     const statusConfig = STATUS_CONFIG[status];
     const StatusIcon = statusConfig.icon;
 
@@ -51,7 +54,7 @@ export function ConversationContainer({
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                         {messageCount !== undefined && messageCount > 0 ? (
-                            <span className="text-xs text-muted-foreground">{messageCount} messages</span>
+                            <span className="text-xs text-muted-foreground">{t("workflow.conversation.container.messageCount", { count: messageCount })}</span>
                         ) : null}
                         <div
                             className={cn(

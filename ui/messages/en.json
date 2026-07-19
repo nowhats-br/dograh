@@ -1591,6 +1591,24 @@
       "keyExists": "A variable with this key already exists."
     },
     "conversation": {
+      "container": {
+        "statusReady": "Ready",
+        "statusLive": "Live",
+        "statusEnded": "Ended",
+        "messageCount": "{count} messages"
+      },
+      "messageBubble": {
+        "reasoningDelay": "Reasoning Delay:",
+        "speaking": "speaking..."
+      },
+      "toolCallCard": {
+        "reasoningDelay": "Reasoning Delay:",
+        "running": "Running",
+        "completed": "Completed",
+        "details": "Details",
+        "arguments": "Arguments",
+        "result": "Result"
+      },
       "realtimeFeedback": {
         "callTranscript": "Call Transcript",
         "liveTranscript": "Live Transcript",
@@ -2026,5 +2044,105 @@
     "description": "You have unsaved changes that will be lost. Are you sure you want to leave?",
     "stayOnPage": "Stay on page",
     "discardChanges": "Discard changes"
+  },
+  "leadForms": {
+    "enterprise": {
+      "eyebrow": "Enterprise",
+      "title": "Book a Strategy Call",
+      "descriptionCalendar": "Pick a time that works for you.",
+      "descriptionForm": "SSO, on-prem, data residency, committed volume. Tell us about your environment.",
+      "primaryDone": "Done",
+      "primarySubmit": "Submit",
+      "secondaryCancel": "Cancel",
+      "toastRequiredFields": "Please fill in all required fields",
+      "toastCheckInbox": "Check your inbox - we just emailed you the next steps (give it a minute).",
+      "toastError": "Something went wrong. Please try again.",
+      "labelName": "Name",
+      "placeholderName": "Your full name",
+      "labelCompany": "Company name",
+      "placeholderCompany": "Acme Inc.",
+      "labelJobTitle": "Job title",
+      "placeholderJobTitle": "VP Operations",
+      "labelWorkEmail": "Work email",
+      "placeholderWorkEmail": "you@company.com",
+      "labelPhone": "Phone",
+      "labelVolume": "Monthly call volume",
+      "placeholderSelect": "Select",
+      "labelDeployment": "Need enterprise deployment (SSO, on-prem, data residency)?",
+      "labelGoal": "What do you want the voice agent to do?",
+      "optional": "(optional)",
+      "placeholderGoal": "Use case, regulatory context, current stack\u2026"
+    },
+    "hireExpert": {
+      "eyebrow": "Done-for-you",
+      "titleCalendar": "Grab a time with our team",
+      "descriptionCalendar": "Pick a time that works for you.",
+      "primaryDone": "Done",
+      "titleForm": "Let us build your voice agent",
+      "descriptionForm": "Building good voice agents is nuanced. Tell us what you need and we'll take it end-to-end.",
+      "primarySubmit": "Submit",
+      "secondaryCancel": "Cancel",
+      "helperEnterpriseLink": "Need enterprise deployment? (SSO, on-prem, data residency)",
+      "toastRequiredFields": "Please fill in all required fields",
+      "toastCheckInbox": "Check your inbox - we just emailed you the next steps (give it a minute).",
+      "toastError": "Something went wrong. Please try again.",
+      "labelName": "Name",
+      "placeholderName": "Your full name",
+      "labelCompany": "Company name",
+      "placeholderCompany": "Acme Inc.",
+      "labelEmail": "Email",
+      "placeholderEmail": "you@company.com",
+      "labelJobTitle": "Job title",
+      "placeholderJobTitle": "VP Operations",
+      "labelGoal": "What do you want the voice agent to do?",
+      "placeholderGoal": "Use case, target outcomes, any remarks\u2026",
+      "labelPhone": "Phone",
+      "labelVolume": "Expected monthly call volume",
+      "placeholderSelect": "Select",
+      "nudgeTitle": "Hire an Expert",
+      "nudgeDescription": "We'll build your agent for you",
+      "nudgeDismiss": "Dismiss"
+    },
+    "onboarding": {
+      "eyebrow": "Welcome",
+      "title": "Welcome to Dograh",
+      "description": "A few quick questions so we can tailor your experience. Takes ~20 seconds.",
+      "primaryGetStarted": "Get started",
+      "toastCheckInbox": "Check your inbox - we just emailed you the next steps (give it a minute).",
+      "toastAnswerAll": "Please answer all the questions",
+      "toastMigratingProvider": "Please tell us which provider you're migrating from",
+      "toastCompleteOnPrem": "Please complete the on-prem details below, or remove that section.",
+      "labelPersona": "What best describes you?",
+      "placeholderSelectOne": "Select one",
+      "labelOnPrem": "Do you need on-prem deployment for compliance & data residency?",
+      "managedOnPrem": "We offer a Managed On-Prem deployment for compliance and data residency.",
+      "removeButton": "Remove",
+      "talkToUs": "Talk to us about on-prem \u2192",
+      "onPremNote": "Our team will reach out about on-prem. Prefer not to? Click \"Remove\".",
+      "labelVolume": "Expected monthly call volume",
+      "labelMigrating": "Are you migrating from another provider?",
+      "labelOtherProvider": "Other provider",
+      "placeholderOtherProvider": "Enter the provider here",
+      "labelSwitchReason": "Why are you switching?",
+      "optional": "(optional)",
+      "placeholderSwitchReason": "e.g. cost, self-hosting, concurrency, data security, latency",
+      "labelHeard": "How did you hear about us?"
+    },
+    "captcha": {
+      "title": "Quick check",
+      "description": "Confirm you're human before we send this.",
+      "question": "What is {a} + {b}?",
+      "questionInline": "Quick check: what is {a} + {b}?",
+      "placeholderAnswer": "Answer",
+      "cancel": "Cancel",
+      "confirmSubmit": "Confirm & submit",
+      "incorrect": "That's not quite right - try again."
+    },
+    "shell": {
+      "submitting": "Submitting\u2026"
+    },
+    "trustLine": {
+      "responseTime": "Average response: under 10 minutes during business hours."
+    }
   }
 }
