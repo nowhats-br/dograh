@@ -48,9 +48,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useTelephonyConfigWarnings } from "@/context/TelephonyConfigWarningsContext";
 import { detailFromError } from "@/lib/apiError";
 import { useAuth } from "@/lib/auth";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 
 export default function TelephonyConfigurationsPage() {
   const { user, getAccessToken, loading: authLoading } = useAuth();
+  const { t } = useTranslation();
   const {
     telnyxMissingWebhookPublicKeyCount,
     vonageMissingSignatureSecretCount,
@@ -77,7 +79,7 @@ export default function TelephonyConfigurationsPage() {
       if (res.error) throw new Error(detailFromError(res.error));
       setItems(res.data?.configurations ?? []);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load configurations");
+      toast.error(err instanceof Error ? err.message : t("telephony.configs.loadError"));
     } finally {
       setLoading(false);
     }
@@ -108,7 +110,7 @@ export default function TelephonyConfigurationsPage() {
       setEditTarget(res.data ?? null);
       setEditOpen(true);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load configuration");
+      toast.error(err instanceof Error ? err.message : t("telephony.configs.loadSingleError"));
     }
   };
 
@@ -122,10 +124,10 @@ export default function TelephonyConfigurationsPage() {
         },
       );
       if (res.error) throw new Error(detailFromError(res.error));
-      toast.success(`${item.name} is now the default outbound configuration`);
+      toast.success(t("telephony.configs.setDefaultSuccess", { name: item.name }));
       fetchItems();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to set default");
+      toast.error(err instanceof Error ? err.message : t("telephony.configs.setDefaultError"));
     }
   };
 
@@ -140,11 +142,11 @@ export default function TelephonyConfigurationsPage() {
         },
       );
       if (res.error) throw new Error(detailFromError(res.error));
-      toast.success("Configuration deleted");
+      toast.success(t("telephony.configs.deleted"));
       setDeleteTarget(null);
       fetchItems();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete configuration");
+      toast.error(err instanceof Error ? err.message : t("telephony.configs.deleteError"));
     }
   };
 
@@ -153,22 +155,21 @@ export default function TelephonyConfigurationsPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Telephony configurations</h1>
+            <h1 className="text-3xl font-bold mb-2">{t("telephony.configs.pageTitle")}</h1>
             <p className="text-muted-foreground">
-              Connect one or more telephony provider accounts. Each campaign uses one
-              configuration; inbound calls are routed to the right one by account ID.{" "}
+              {t("telephony.configs.pageDescription")}{" "}
               <a
                 href="https://docs.dograh.com/integrations/telephony/overview"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-0.5 underline"
               >
-                Learn more <ExternalLink className="h-3 w-3" />
+                {t("common.learnMore")} <ExternalLink className="h-3 w-3" />
               </a>
             </p>
           </div>
           <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" /> Add configuration
+            <Plus className="h-4 w-4 mr-2" /> {t("telephony.configs.addConfig")}
           </Button>
         </div>
 
@@ -223,14 +224,14 @@ export default function TelephonyConfigurationsPage() {
         ) : items.length === 0 ? (
           <Card>
             <CardHeader>
-              <CardTitle>No telephony configurations yet</CardTitle>
+              <CardTitle>{t("telephony.configs.emptyTitle")}</CardTitle>
               <CardDescription>
-                Add one to enable outbound calls and receive inbound calls.
+                {t("telephony.configs.emptyDescription")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button onClick={() => setCreateOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" /> Add configuration
+                <Plus className="h-4 w-4 mr-2" /> {t("telephony.configs.addConfig")}
               </Button>
             </CardContent>
           </Card>
@@ -250,13 +251,12 @@ export default function TelephonyConfigurationsPage() {
                         {item.is_default_outbound && (
                           <Badge className="gap-1">
                             <Star className="h-3 w-3 fill-current" />
-                            Default
+                            {t("telephony.configs.defaultBadge")}
                           </Badge>
                         )}
                       </div>
                       <span className="text-sm text-muted-foreground">
-                        {item.phone_number_count} phone{" "}
-                        {item.phone_number_count === 1 ? "number" : "numbers"}
+                        {t("telephony.configs.phoneNumberCount", { count: item.phone_number_count })}
                       </span>
                       <button
                         type="button"
@@ -265,13 +265,13 @@ export default function TelephonyConfigurationsPage() {
                           e.stopPropagation();
                           navigator.clipboard
                             .writeText(String(item.id))
-                            .then(() => toast.success("Configuration ID copied"))
-                            .catch(() => toast.error("Failed to copy ID"));
+                            .then(() => toast.success(t("telephony.configs.idCopied")))
+                            .catch(() => toast.error(t("telephony.configs.idCopyFailed")));
                         }}
-                        title="Click to copy"
+                        title={t("telephony.configs.clickToCopy")}
                         className="inline-flex items-center gap-1 self-start rounded font-mono text-xs text-muted-foreground hover:text-foreground"
                       >
-                        <span className="truncate">Configuration ID: {item.id}</span>
+                        <span className="truncate">{t("telephony.configs.idLabel")}{item.id}</span>
                         <Copy className="h-3 w-3 shrink-0" />
                       </button>
                     </div>
@@ -282,7 +282,7 @@ export default function TelephonyConfigurationsPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => onSetDefault(item)}
-                        title="Set as default outbound"
+                        title={t("telephony.configs.setDefaultTitle")}
                       >
                         <Star className="h-4 w-4" />
                       </Button>
@@ -291,7 +291,7 @@ export default function TelephonyConfigurationsPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => onEdit(item)}
-                      title="Edit"
+                      title={t("common.edit")}
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -299,16 +299,16 @@ export default function TelephonyConfigurationsPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setDeleteTarget(item)}
-                      title="Delete"
+                      title={t("common.delete")}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                     <Button variant="outline" size="sm" asChild>
                       <Link
                         href={`/telephony-configurations/${item.id}`}
-                        aria-label={`Manage phone numbers for ${item.name}`}
+                        aria-label={t("telephony.configs.manageNumbersAria", { name: item.name })}
                       >
-                        Manage Phone Numbers
+                        {t("telephony.configs.manageNumbers")}
                         <ChevronRight className="h-4 w-4" />
                       </Link>
                     </Button>
@@ -339,16 +339,14 @@ export default function TelephonyConfigurationsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete configuration?</AlertDialogTitle>
+            <AlertDialogTitle>{t("telephony.configs.deleteConfirmTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              {deleteTarget?.name} and all of its phone numbers will be removed. Any
-              campaigns that reference this configuration will block the deletion until
-              they are reassigned.
+              {t("telephony.configs.deleteConfirmDescription", { name: deleteTarget?.name })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={onConfirmDelete}>Delete</AlertDialogAction>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={onConfirmDelete}>{t("common.deleteConfirm")}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

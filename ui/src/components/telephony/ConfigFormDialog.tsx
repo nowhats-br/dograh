@@ -38,6 +38,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { detailFromError } from "@/lib/apiError";
 import { useAuth } from "@/lib/auth";
+import { useTranslation } from "@/lib/i18n/LocaleContext";
 
 interface ConfigFormDialogProps {
   open: boolean;
@@ -64,6 +65,7 @@ export function ConfigFormDialog({
   const [values, setValues] = useState<FieldValues>({});
   const [submitting, setSubmitting] = useState<boolean>(false);
 
+  const { t } = useTranslation();
   const isEdit = !!existing;
   const lockedProvider = isEdit;
 
@@ -112,7 +114,7 @@ export function ConfigFormDialog({
   const handleSubmit = async () => {
     if (!currentProvider) return;
     if (!isEdit && !name.trim()) {
-      toast.error("Name is required");
+      toast.error(t("telephony.configForm.nameRequired"));
       return;
     }
 
@@ -134,8 +136,8 @@ export function ConfigFormDialog({
             body: { name: name || undefined, config: configPayload },
           },
         );
-        if (res.error) throw new Error(detailFromError(res.error, "Failed to save configuration"));
-        toast.success("Configuration updated");
+        if (res.error) throw new Error(detailFromError(res.error, t("telephony.configForm.saveError")));
+        toast.success(t("telephony.configForm.updated"));
       } else {
         const res = await createTelephonyConfigurationApiV1OrganizationsTelephonyConfigsPost(
           {
@@ -147,13 +149,13 @@ export function ConfigFormDialog({
             },
           },
         );
-        if (res.error) throw new Error(detailFromError(res.error, "Failed to save configuration"));
-        toast.success("Configuration created");
+        if (res.error) throw new Error(detailFromError(res.error, t("telephony.configForm.saveError")));
+        toast.success(t("telephony.configForm.created"));
       }
       onOpenChange(false);
       onSaved();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save");
+      toast.error(err instanceof Error ? err.message : t("telephony.configForm.saveCatchError"));
     } finally {
       setSubmitting(false);
     }
@@ -164,28 +166,28 @@ export function ConfigFormDialog({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "Edit telephony configuration" : "Add telephony configuration"}
+            {isEdit ? t("telephony.configForm.editTitle") : t("telephony.configForm.createTitle")}
           </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Update credentials for this configuration. Phone numbers are managed separately."
-              : "Connect a telephony provider account. Phone numbers are added after the configuration is created."}
+              ? t("telephony.configForm.editDescription")
+              : t("telephony.configForm.createDescription")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           {isEdit && existing && (
             <div className="space-y-1">
-              <Label>Configuration ID</Label>
+              <Label>{t("telephony.configForm.configIdLabel")}</Label>
               <button
                 type="button"
                 onClick={() => {
                   navigator.clipboard
                     .writeText(String(existing.id))
-                    .then(() => toast.success("Configuration ID copied"))
-                    .catch(() => toast.error("Failed to copy ID"));
+                    .then(() => toast.success(t("telephony.configForm.idCopied")))
+                    .catch(() => toast.error(t("telephony.configForm.idCopyFailed")));
                 }}
-                title="Click to copy"
+                title={t("common.clickToCopy")}
                 className="group flex w-full items-center gap-2 rounded-md border bg-muted/20 p-2 text-left font-mono text-xs transition-colors hover:bg-muted/40"
               >
                 <code className="flex-1 truncate">{existing.id}</code>
@@ -195,24 +197,24 @@ export function ConfigFormDialog({
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="cfg-name">Name</Label>
+            <Label htmlFor="cfg-name">{t("telephony.configForm.nameLabel")}</Label>
             <Input
               id="cfg-name"
-              placeholder="e.g. Twilio US prod"
+              placeholder={t("telephony.configForm.namePlaceholder")}
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="cfg-provider">Provider</Label>
+            <Label htmlFor="cfg-provider">{t("telephony.configForm.providerLabel")}</Label>
             <Select
               value={providerName}
               onValueChange={setProviderName}
               disabled={lockedProvider || providers.length === 0}
             >
               <SelectTrigger id="cfg-provider">
-                <SelectValue placeholder="Select a provider" />
+                <SelectValue placeholder={t("telephony.configForm.providerPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
                 {providers.map((p) => (
@@ -224,7 +226,7 @@ export function ConfigFormDialog({
             </Select>
             {lockedProvider && (
               <p className="text-xs text-muted-foreground">
-                Provider cannot be changed after creation.
+                {t("telephony.configForm.providerLockedHint")}
               </p>
             )}
             {currentProvider?.docs_url && (
@@ -234,7 +236,7 @@ export function ConfigFormDialog({
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-xs text-blue-600 underline"
               >
-                {currentProvider.display_name} docs <ExternalLink className="h-3 w-3" />
+                {t("telephony.configForm.providerDocsLink", { name: currentProvider.display_name })} <ExternalLink className="h-3 w-3" />
               </a>
             )}
           </div>
@@ -242,9 +244,9 @@ export function ConfigFormDialog({
           {!isEdit && (
             <div className="flex items-center justify-between rounded border p-3">
               <div>
-                <Label className="text-sm">Set as default for outbound calls</Label>
+                <Label className="text-sm">{t("telephony.configForm.defaultOutboundLabel")}</Label>
                 <p className="text-xs text-muted-foreground">
-                  Used by test calls and campaigns when no specific config is selected.
+                  {t("telephony.configForm.defaultOutboundDescription")}
                 </p>
               </div>
               <Switch checked={isDefault} onCheckedChange={setIsDefault} />
@@ -259,7 +261,7 @@ export function ConfigFormDialog({
                     {field.label}
                     {!field.required && (
                       <span className="ml-1 text-xs text-muted-foreground">
-                        (optional)
+                        {t("common.optional")}
                       </span>
                     )}
                   </Label>
@@ -280,10 +282,10 @@ export function ConfigFormDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={submitting || !currentProvider}>
-            {submitting ? "Saving..." : isEdit ? "Save changes" : "Create"}
+            {submitting ? t("common.saving") : isEdit ? t("common.saveChanges") : t("common.create")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -301,17 +303,19 @@ interface FieldInputProps {
 // Skip from_numbers in the metadata-driven form — phone numbers are managed
 // via the dedicated phone-numbers endpoints and a different UI.
 function FieldInput({ field, value, onChange, isEdit }: FieldInputProps) {
+  const { t } = useTranslation();
+
   if (field.name === "from_numbers") {
     return (
       <p className="text-xs text-muted-foreground">
-        Phone numbers are managed separately on the configuration page.
+        {t("telephony.configForm.fromNumbersHint")}
       </p>
     );
   }
 
   const placeholder =
     field.placeholder ??
-    (field.sensitive && isEdit ? "Leave masked to keep existing" : "");
+    (field.sensitive && isEdit ? t("telephony.configForm.sensitivePlaceholder") : "");
 
   if (field.type === "textarea") {
     return (
