@@ -11,7 +11,7 @@ export async function loadMessages(locale: string): Promise<Messages> {
   return cache[locale];
 }
 
-export function t(key: string, messages: Messages, params?: Record<string, string | number>, fallback?: string): string {
+export function t(key: string, messages: Messages, params?: Record<string, string | number | undefined>, fallback?: string): string {
   const parts = key.split('.');
   let value: unknown = messages;
   for (const part of parts) {

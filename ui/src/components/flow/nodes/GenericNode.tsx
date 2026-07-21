@@ -391,6 +391,7 @@ function UrlPanel({
     endpoint: string;
     helperText: string;
 }) {
+    const { t } = useTranslation();
     const curl = endpoint ? buildCurl(endpoint) : "";
     return (
         <div className="grid gap-2 pt-2">

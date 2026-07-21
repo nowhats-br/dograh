@@ -36,7 +36,8 @@ const getLocalTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 const buildAgentFilterAttributes = (
     agentOptions: NumberFilterOption[] | null,
-    isLoadingAgentOptions: boolean
+    isLoadingAgentOptions: boolean,
+    t: (key: string, params?: Record<string, string | number>) => string
 ): FilterAttribute[] => {
     return usageFilterAttributes.map(attribute => {
         if (attribute.id !== 'workflowId') {
@@ -81,8 +82,8 @@ export default function UsagePage() {
     const [agentFilterOptions, setAgentFilterOptions] = useState<NumberFilterOption[] | null>(null);
     const [isLoadingAgentFilterOptions, setIsLoadingAgentFilterOptions] = useState(false);
     const availableUsageFilterAttributes = useMemo(
-        () => buildAgentFilterAttributes(agentFilterOptions, isLoadingAgentFilterOptions),
-        [agentFilterOptions, isLoadingAgentFilterOptions]
+        () => buildAgentFilterAttributes(agentFilterOptions, isLoadingAgentFilterOptions, t),
+        [agentFilterOptions, isLoadingAgentFilterOptions, t]
     );
 
     // Daily usage breakdown state (only for paid orgs)

@@ -256,7 +256,7 @@ export default function TelephonyConfigurationsPage() {
                         )}
                       </div>
                       <span className="text-sm text-muted-foreground">
-                        {t("telephony.configs.phoneNumberCount", { count: item.phone_number_count })}
+                        {t("telephony.configs.phoneNumberCount", { count: item.phone_number_count ?? 0 })}
                       </span>
                       <button
                         type="button"
@@ -341,7 +341,7 @@ export default function TelephonyConfigurationsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>{t("telephony.configs.deleteConfirmTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t("telephony.configs.deleteConfirmDescription", { name: deleteTarget?.name })}
+              {t("telephony.configs.deleteConfirmDescription", { name: deleteTarget?.name ?? '' })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

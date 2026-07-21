@@ -446,6 +446,7 @@ export default function TelephonyConfigurationDetailPage() {
           open={waSessionDialogOpen}
           onOpenChange={setWaSessionDialogOpen}
           configId={configId}
+          bridgeUrl={process.env.NEXT_PUBLIC_BRIDGE_URL || ''}
           onSaved={fetchAll}
         />
       )}
@@ -458,7 +459,7 @@ export default function TelephonyConfigurationDetailPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>{t("telephony.configDetail.deletePhoneConfirmTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t("telephony.configDetail.deletePhoneConfirmDescription", { address: phoneDeleteTarget?.address })}
+              {t("telephony.configDetail.deletePhoneConfirmDescription", { address: phoneDeleteTarget?.address ?? '' })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

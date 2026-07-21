@@ -25,6 +25,7 @@ RUN apk add --no-cache libc6-compat
 COPY --from=deps /app/node_modules ./node_modules
 
 # Copy all files needed for build
+ARG CACHEBUST=1
 COPY ui/package*.json ./
 COPY ui/tsconfig.json ./
 COPY ui/next.config.ts ./
@@ -32,6 +33,7 @@ COPY ui/components.json ./
 COPY ui/sentry.edge.config.ts ./
 COPY ui/sentry.server.config.ts ./
 COPY ui/postcss.config.mjs ./
+COPY ui/messages ./messages
 COPY ui/public ./public
 COPY ui/src ./src
 

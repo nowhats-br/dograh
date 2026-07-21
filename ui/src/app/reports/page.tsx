@@ -268,7 +268,7 @@ export default function ReportsPage() {
         <div className="text-sm text-muted-foreground">
           {t('reports.showingDataFor', { timezone })}
           {selectedWorkflow !== 'all' && (
-            <span>{t('reports.filteredBy', { name: workflows.find(w => w.id.toString() === selectedWorkflow)?.name })}</span>
+            <span>{t('reports.filteredBy', { name: workflows.find(w => w.id.toString() === selectedWorkflow)?.name ?? '' })}</span>
           )}
         </div>
 

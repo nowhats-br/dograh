@@ -7,7 +7,7 @@ import { loadMessages, t as resolveKey, type Messages } from './messages';
 interface LocaleContextValue {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: (key: string, params?: Record<string, string | number>, fallback?: string) => string;
+  t: (key: string, params?: Record<string, string | number | undefined>, fallback?: string) => string;
   messages: Messages | null;
   supportedLocales: Locale[];
 }
@@ -44,7 +44,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     loadMessages(newLocale).then(setMessages);
   }, []);
 
-  const tFn = useCallback((key: string, params?: Record<string, string | number>, fallback?: string) => {
+  const tFn = useCallback((key: string, params?: Record<string, string | number | undefined>, fallback?: string) => {
     if (!messages) return fallback ?? key;
     return resolveKey(key, messages, params, fallback);
   }, [messages]);

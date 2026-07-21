@@ -93,6 +93,7 @@ function MetricCard({ label, value }: { label: string; value: string }) {
 
 function CopyDebugIdButton({ label, value }: { label: string; value: string }) {
     const [copied, setCopied] = useState(false);
+    const { t } = useTranslation();
 
     const handleCopy = async () => {
         await navigator.clipboard.writeText(value);

@@ -18,7 +18,7 @@ export function LanguageSwitcher() {
       <SelectTrigger className="w-fit gap-2 border-0 bg-transparent">
         <SelectValue>
           <span className="flex items-center gap-2">
-            {getFlagEmoji(locale)} <span className="text-sm">{t(`locale.${locale}`, locale)}</span>
+            {getFlagEmoji(locale)} <span className="text-sm">{t(`locale.${locale}`, undefined, locale)}</span>
           </span>
         </SelectValue>
       </SelectTrigger>
@@ -26,7 +26,7 @@ export function LanguageSwitcher() {
         {supportedLocales.map((l) => (
           <SelectItem key={l} value={l}>
             <span className="flex items-center gap-2">
-              {getFlagEmoji(l)} {t(`locale.${l}`, l)}
+              {getFlagEmoji(l)} {t(`locale.${l}`, undefined, l)}
             </span>
           </SelectItem>
         ))}
